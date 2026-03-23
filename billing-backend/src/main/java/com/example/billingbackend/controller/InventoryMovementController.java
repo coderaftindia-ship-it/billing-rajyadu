@@ -9,7 +9,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/inventory-movements")
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class InventoryMovementController {
 
     @Autowired

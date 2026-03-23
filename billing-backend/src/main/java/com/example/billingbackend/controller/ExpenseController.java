@@ -10,7 +10,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/expenses")
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true") // Allow frontend to connect
 public class ExpenseController {
 
     @Autowired
