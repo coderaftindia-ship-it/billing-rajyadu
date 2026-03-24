@@ -57,7 +57,7 @@ export default function Login() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl shadow-xl shadow-blue-200 mb-4 transition-transform hover:scale-105">
             <ShoppingCart size={32} className="text-white" />
           </div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">SmartBill</h1>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Rajyadu</h1>
           <p className="text-slate-500 font-medium mt-2">
             {step === 'login' ? 'Sign in to manage your business' : 'Enter 2FA verification code'}
           </p>
@@ -93,10 +93,7 @@ export default function Login() {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center ml-1">
-                    <label className="text-xs font-black uppercase text-slate-400 tracking-widest">Password</label>
-                    <button type="button" className="text-[10px] font-black uppercase text-blue-600 hover:underline">Forgot?</button>
-                  </div>
+                 
                   <div className="relative group">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors">
                       <Lock size={20} />
@@ -175,16 +172,12 @@ export default function Login() {
             )}
           </div>
           
-          <div className="bg-slate-50 p-6 border-t border-slate-100 text-center">
-            <p className="text-xs text-slate-500 font-medium">
-              Don't have an account? <span className="text-blue-600 font-bold cursor-pointer hover:underline">Contact Administrator</span>
-            </p>
-          </div>
+         
         </div>
 
         {/* Footer Info */}
         <p className="text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-8">
-          SmartBill v2.4.0 &copy; 2024 All Rights Reserved
+          Rajyadu v2.4.0 &copy; 2026 All Rights Reserved
         </p>
       </div>
     </div>
