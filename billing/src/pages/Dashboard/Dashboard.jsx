@@ -89,16 +89,18 @@ export default function Dashboard() {
   const monthlySales = pos.reduce((acc, sale) => acc + sale.totalAmount, 0);
   const lowStockItems = products.filter(p => p.stock < 10);
 
-  // Mock data for chart based on actual sales if available
-  const salesData = [
-    { name: 'Mon', sales: 4000, profit: 2400 },
-    { name: 'Tue', sales: 3000, profit: 1398 },
-    { name: 'Wed', sales: 2000, profit: 9800 },
-    { name: 'Thu', sales: 2780, profit: 3908 },
-    { name: 'Fri', sales: 1890, profit: 4800 },
-    { name: 'Sat', sales: 2390, profit: 3800 },
-    { name: 'Sun', sales: 3490, profit: 4300 },
-  ];
+  const salesData = Array.from({ length: 7 }).map((_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateString = d.toISOString().split('T')[0];
+    const daySales = pos
+      .filter(sale => sale.transactionDate.startsWith(dateString))
+      .reduce((acc, sale) => acc + sale.totalAmount, 0);
+    return {
+      name: d.toLocaleDateString('en-US', { weekday: 'short' }),
+      sales: daySales,
+    };
+  }).reverse();
 
   const recentTransactions = pos.slice(-4).reverse().map(sale => ({
     id: `#TRX-${sale.id}`,
@@ -109,21 +111,23 @@ export default function Dashboard() {
   }));
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Welcome Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Business Overview</h1>
-          <p className="text-slate-500">Welcome back, here's what's happening today.</p>
+          <h1 className="text-xl md:text-2xl font-bold text-slate-900">Business Overview</h1>
+          <p className="text-sm text-slate-500">Welcome back, here's what's happening today.</p>
         </div>
-        <div className="flex gap-3">
-          <div className="relative">
+        <div className="flex flex-wrap gap-2 md:gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:flex-none">
             <button 
               onClick={() => setShowTimeDropdown(!showTimeDropdown)}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all shadow-sm"
+              className="flex items-center justify-between sm:justify-start gap-2 w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all shadow-sm"
             >
-              <Calendar size={18} />
-              <span>{timeRange}</span>
+              <div className="flex items-center gap-2">
+                <Calendar size={18} />
+                <span>{timeRange}</span>
+              </div>
               <ChevronDown className={cn("transition-transform duration-300", showTimeDropdown && "rotate-180")} size={16} />
             </button>
 
@@ -153,16 +157,16 @@ export default function Dashboard() {
           
           <button 
             onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all"
+            className="flex items-center justify-center gap-2 flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all"
           >
             <Download size={18} />
-            <span>Export Report</span>
+            <span className="whitespace-nowrap">Export Report</span>
           </button>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <StatCard 
           title="Today's Sales" 
           value={`₹${todaySales.toFixed(2)}`} 
@@ -196,7 +200,7 @@ export default function Dashboard() {
       </div>
 
       {/* Charts & Lists */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         {/* Sales Chart */}
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
           <div className="flex justify-between items-center mb-8">
@@ -259,12 +263,7 @@ export default function Dashboard() {
         <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <div className="p-6 border-b border-slate-50 flex justify-between items-center">
             <h3 className="font-bold text-slate-900">Recent Transactions</h3>
-            <button 
-              onClick={() => navigate('/billing-history')}
-              className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 group"
-            >
-              View All <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-            </button>
+            
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">

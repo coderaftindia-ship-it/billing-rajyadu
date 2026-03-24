@@ -14,6 +14,8 @@ import Reports from './pages/Reports/Reports';
 import Expenses from './pages/Expenses/Expenses';
 import Users from './pages/Users/Users';
 import Settings from './pages/Settings/Settings';
+import Profile from './pages/Profile';
+import ForgotPassword from './pages/ForgotPassword';
 import Login from './pages/Login/Login';
 import { BillingProvider, useBilling } from './context/BillingContext';
 
@@ -97,6 +99,8 @@ function App() {
               <Route path="/expenses" element={<Expenses />} />
               <Route path="/users" element={<Users />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

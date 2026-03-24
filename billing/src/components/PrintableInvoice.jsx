@@ -48,12 +48,14 @@ export const PrintableInvoice = ({ sale, customer, items }) => {
       <div className="max-w-4xl mx-auto border border-slate-200 p-8 rounded-lg shadow-sm">
         {/* Header */}
         <div className="flex justify-between items-start border-b-2 border-slate-900 pb-6 mb-6">
-          <div className="flex gap-4 items-center">
-            {companyLogo && (
-              <img src={companyLogo} alt="Company Logo" className="w-16 h-16 object-contain" />
+          <div className="flex gap-6 items-center">
+            {companyLogo ? (
+              <img src={companyLogo} alt={companyName} className="h-20 object-contain" />
+            ) : (
+              <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight">{companyName}</h1>
             )}
             <div>
-              <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight">{companyName}</h1>
+              {companyLogo && <h1 className="sr-only">{companyName}</h1>}
               <p className="text-sm text-slate-600 font-medium">{companyAddress}</p>
               <p className="text-sm text-slate-600 font-medium">Phone: {companyPhone} | Email: {companyEmail}</p>
               <p className="text-xs font-bold text-slate-800 mt-1">GSTIN: {companyGST}</p>

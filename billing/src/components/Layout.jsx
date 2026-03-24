@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
-import { Bell, User, Search, X, Check, Trash2 } from 'lucide-react';
+import { Bell, User, Search, X, Check, Trash2, Menu, UserCog, Lock } from 'lucide-react';
 import { useBilling } from '../context/BillingContext';
 import { ToastContainer } from './ToastContainer';
 
@@ -13,8 +13,11 @@ export function Layout() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const searchRef = useRef(null);
   const notificationRef = useRef(null);
+  const userMenuRef = useRef(null);
   const navigate = useNavigate();
 
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -39,10 +42,18 @@ export function Layout() {
       if (notificationRef.current && !notificationRef.current.contains(event.target)) {
         setShowNotifications(false);
       }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Close sidebar on navigation in mobile
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [navigate]);
 
   const handleSearchItemClick = (type, id) => {
     setSearchQuery('');
@@ -51,83 +62,101 @@ export function Layout() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar />
-      <main className="flex-1 ml-64 min-h-screen flex flex-col print:ml-0">
-        {/* Header */}
-        <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10 shadow-sm print:hidden">
-          <div className="relative" ref={searchRef}>
-            <div className="flex items-center gap-4 bg-slate-100 px-4 py-2 rounded-xl w-96 group focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
-              <Search className="text-slate-400 group-focus-within:text-blue-500 transition-colors" size={20} />
-              <input 
-                type="text" 
-                placeholder="Search products, customers, suppliers..." 
-                className="bg-transparent border-none outline-none w-full text-sm text-slate-700 placeholder:text-slate-400"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setShowSearchResults(true);
-                }}
-                onFocus={() => setShowSearchResults(true)}
-              />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery('')}>
-                  <X size={16} className="text-slate-400 hover:text-slate-600" />
-                </button>
-              )}
-            </div>
+    <div className="flex min-h-screen bg-slate-50 overflow-x-hidden">
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      
+      {/* Overlay for mobile sidebar */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/25 z-40 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
 
-            {/* Search Results Dropdown */}
-            {showSearchResults && hasResults && (
-              <div className="absolute top-full left-0 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden">
-                {filteredResults.products.length > 0 && (
-                  <div className="p-2 border-b border-slate-100">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase px-3 mb-1">Products</p>
-                    {filteredResults.products.map(p => (
-                      <button 
-                        key={p.id}
-                        onClick={() => handleSearchItemClick('products', p.id)}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-slate-50 rounded-lg flex justify-between items-center"
-                      >
-                        <span className="text-slate-700">{p.name}</span>
-                        <span className="text-xs text-slate-400">Stock: {p.stock}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {filteredResults.customers.length > 0 && (
-                  <div className="p-2 border-b border-slate-100">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase px-3 mb-1">Customers</p>
-                    {filteredResults.customers.map(c => (
-                      <button 
-                        key={c.id}
-                        onClick={() => handleSearchItemClick('customers', c.id)}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-slate-50 rounded-lg"
-                      >
-                        <span className="text-slate-700">{c.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {filteredResults.suppliers.length > 0 && (
-                  <div className="p-2">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase px-3 mb-1">Suppliers</p>
-                    {filteredResults.suppliers.map(s => (
-                      <button 
-                        key={s.id}
-                        onClick={() => handleSearchItemClick('suppliers', s.id)}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-slate-50 rounded-lg"
-                      >
-                        <span className="text-slate-700">{s.name}</span>
-                      </button>
-                    ))}
-                  </div>
+      <main className="flex-1 lg:ml-64 min-h-screen flex flex-col print:ml-0 transition-all duration-300">
+        {/* Header */}
+        <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-30 shadow-sm print:hidden">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="p-2 -ml-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg lg:hidden"
+            >
+              <Menu size={24} />
+            </button>
+            
+            <div className="relative hidden md:block" ref={searchRef}>
+              <div className="flex items-center gap-4 bg-slate-100 px-4 py-2 rounded-xl w-64 lg:w-96 group focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
+                <Search className="text-slate-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+                <input 
+                  type="text" 
+                  placeholder="Search..." 
+                  className="bg-transparent border-none outline-none w-full text-sm text-slate-700 placeholder:text-slate-400"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setShowSearchResults(true);
+                  }}
+                  onFocus={() => setShowSearchResults(true)}
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery('')}>
+                    <X size={16} className="text-slate-400 hover:text-slate-600" />
+                  </button>
                 )}
               </div>
-            )}
+
+              {/* Search Results Dropdown */}
+              {showSearchResults && hasResults && (
+                <div className="absolute top-full left-0 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden">
+                  {filteredResults.products.length > 0 && (
+                    <div className="p-2 border-b border-slate-100">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase px-3 mb-1">Products</p>
+                      {filteredResults.products.map(p => (
+                        <button 
+                          key={p.id}
+                          onClick={() => handleSearchItemClick('products', p.id)}
+                          className="w-full text-left px-3 py-2 text-sm hover:bg-slate-50 rounded-lg flex justify-between items-center"
+                        >
+                          <span className="text-slate-700">{p.name}</span>
+                          <span className="text-xs text-slate-400">Stock: {p.stock}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {filteredResults.customers.length > 0 && (
+                    <div className="p-2 border-b border-slate-100">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase px-3 mb-1">Customers</p>
+                      {filteredResults.customers.map(c => (
+                        <button 
+                          key={c.id}
+                          onClick={() => handleSearchItemClick('customers', c.id)}
+                          className="w-full text-left px-3 py-2 text-sm hover:bg-slate-50 rounded-lg"
+                        >
+                          <span className="text-slate-700">{c.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {filteredResults.suppliers.length > 0 && (
+                    <div className="p-2">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase px-3 mb-1">Suppliers</p>
+                      {filteredResults.suppliers.map(s => (
+                        <button 
+                          key={s.id}
+                          onClick={() => handleSearchItemClick('suppliers', s.id)}
+                          className="w-full text-left px-3 py-2 text-sm hover:bg-slate-50 rounded-lg"
+                        >
+                          <span className="text-slate-700">{s.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 md:gap-6">
             <div className="relative" ref={notificationRef}>
               <button 
                 className="relative p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
@@ -140,7 +169,6 @@ export function Layout() {
                   </span>
                 )}
               </button>
-
               {/* Notifications Dropdown */}
               {showNotifications && (
                 <div className="absolute top-full right-0 mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden">
@@ -187,28 +215,72 @@ export function Layout() {
               )}
             </div>
 
-            <div className="flex items-center gap-3 pl-6 border-l border-slate-200">
-              <div className="text-right">
-                <p className="text-sm font-semibold text-slate-900 leading-tight">
-                  {currentUser?.name || 'Admin User'}
-                </p>
-                <p className="text-xs text-slate-500">
-                  {currentUser?.role || 'Business Owner'}
-                </p>
-              </div>
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white border border-blue-100 shadow-sm">
-                <User size={20} />
-              </div>
+            <div className="relative pl-3 md:pl-6 border-l border-slate-200" ref={userMenuRef}>
+              <button 
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center gap-2 md:gap-3"
+              >
+                <div className="text-right hidden sm:block">
+                  <p className="text-sm font-semibold text-slate-900 leading-tight">
+                    {currentUser?.name || 'Admin User'}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {currentUser?.role || 'Business Owner'}
+                  </p>
+                </div>
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white border border-blue-100 shadow-sm">
+                  <User size={18} />
+                </div>
+              </button>
+
+              {/* User Menu Dropdown */}
+              {showUserMenu && (
+                <div className="absolute top-full right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden">
+                  <div className="p-2">
+                    <button 
+                      onClick={() => {
+                        navigate('/profile');
+                        setShowUserMenu(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg flex items-center gap-3"
+                    >
+                      <UserCog size={16} className="text-slate-400" />
+                      <span>Edit Profile</span>
+                    </button>
+                    <button 
+                      onClick={() => {
+                        navigate('/forgot-password');
+                        setShowUserMenu(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg flex items-center gap-3"
+                    >
+                      <Lock size={16} className="text-slate-400" />
+                      <span>Change Password</span>
+                    </button>
+                  </div>
+                  <div className="p-2 border-t border-slate-100">
+                    <button 
+                      onClick={() => {
+                        // Implement logout logic here
+                        setShowUserMenu(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg flex items-center gap-3"
+                    >
+                      <User size={16} />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </header>
-
-        {/* Content */}
-        <div className="p-8 print:p-0 flex-1">
+        
+        <div className="p-4 md:p-8 flex-1">
           <Outlet />
         </div>
+        <ToastContainer />
       </main>
-      <ToastContainer />
     </div>
   );
 }

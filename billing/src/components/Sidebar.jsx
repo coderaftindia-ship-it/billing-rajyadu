@@ -14,7 +14,8 @@ import {
   UserCog, 
   Settings,
   ChevronRight,
-  LogOut
+  LogOut,
+  X
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 
@@ -36,7 +37,7 @@ const menuItems = [
   { icon: Settings, label: 'Settings', path: '/settings' },
 ];
 
-export function Sidebar() {
+export function Sidebar({ isOpen, onClose }) {
   const location = useLocation();
   const { currentUser, logout, settings } = useBilling();
 
@@ -63,8 +64,11 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-64 h-screen bg-white border-r border-slate-200 flex flex-col fixed left-0 top-0 print:hidden">
-      <div className="p-6 border-b border-slate-100">
+    <aside className={cn(
+      "w-64 h-screen bg-white border-r border-slate-200 flex flex-col fixed left-0 top-0 z-50 transition-transform duration-300 lg:translate-x-0 print:hidden",
+      isOpen ? "translate-x-0" : "-translate-x-full"
+    )}>
+      <div className="p-6 border-b border-slate-100 flex items-center justify-between">
         <div className="flex items-center gap-3">
           {companyLogo ? (
             <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center">
@@ -75,6 +79,12 @@ export function Sidebar() {
             {companyName}
           </span>
         </div>
+        <button 
+          onClick={onClose}
+          className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg lg:hidden"
+        >
+          <X size={20} />
+        </button>
       </div>
 
       <nav className="flex-1 overflow-y-auto p-4 space-y-1">
