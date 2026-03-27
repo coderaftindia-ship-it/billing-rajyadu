@@ -189,62 +189,57 @@ export default function POS() {
         items={lastSale?.cart || []} 
       />
 
-      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-8 h-full print:hidden">
+      <div className="flex-1 flex flex-col lg:grid lg:grid-cols-12 gap-4 md:gap-8 min-h-0 overflow-hidden px-4 md:px-0">
         {/* Left Section - Product Selection */}
-        <div className="lg:col-span-7 flex flex-col gap-4 lg:gap-6 min-h-[500px] lg:min-h-0">
-          <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 md:space-y-6">
-            <div className="flex items-center gap-4 bg-slate-100 px-4 py-2 md:py-3 rounded-xl border border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all group">
-              <Search className="text-slate-400 group-focus-within:text-blue-500" size={20} />
+        <div className="lg:col-span-7 flex flex-col gap-4 md:gap-6 min-h-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="w-full sm:w-auto relative group flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={20} />
               <input 
                 type="text" 
-                placeholder="Search or scan barcode..." 
-                className="bg-transparent border-none outline-none w-full text-sm font-medium"
+                placeholder="Search products by name or barcode..." 
+                className="w-full pl-12 pr-4 py-3 md:py-4 bg-white border border-slate-200 rounded-xl md:rounded-3xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-sm md:text-base shadow-sm"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <div className="hidden sm:flex items-center gap-2 px-2 py-1 bg-slate-200 rounded text-[10px] font-bold text-slate-500 uppercase">
-                <QrCode size={14} /> Scan
-              </div>
             </div>
-
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide flex-1 -mx-2 px-2">
-                {categories.map(cat => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    className={cn(
-                      "px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-medium whitespace-nowrap transition-all",
-                      selectedCategory === cat ? "bg-blue-600 text-white shadow-lg" : "bg-slate-50 text-slate-600 hover:bg-slate-100"
-                    )}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-              <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-inner h-fit">
+            <div className="flex bg-white p-1.5 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm w-full sm:w-auto overflow-x-auto">
+              <div className="flex gap-1 w-full sm:w-auto">
                 <button 
                   onClick={() => setViewMode('grid')}
                   className={cn(
-                    "p-1.5 md:p-2 rounded-lg transition-all",
-                    viewMode === 'grid' ? "bg-white text-blue-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                    "flex-1 sm:flex-none p-2 md:p-2.5 rounded-lg md:rounded-xl transition-all",
+                    viewMode === 'grid' ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-slate-400 hover:bg-slate-50"
                   )}
-                  title="Grid View"
                 >
-                  <LayoutGrid size={16} />
+                  <LayoutGrid size={18} />
                 </button>
                 <button 
                   onClick={() => setViewMode('table')}
                   className={cn(
-                    "p-1.5 md:p-2 rounded-lg transition-all",
-                    viewMode === 'table' ? "bg-white text-blue-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                    "flex-1 sm:flex-none p-2 md:p-2.5 rounded-lg md:rounded-xl transition-all",
+                    viewMode === 'table' ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-slate-400 hover:bg-slate-50"
                   )}
-                  title="Table View"
                 >
-                  <List size={16} />
+                  <List size={18} />
                 </button>
               </div>
             </div>
+          </div>
+
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-2 px-2">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={cn(
+                  "px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-medium whitespace-nowrap transition-all",
+                  selectedCategory === cat ? "bg-blue-600 text-white shadow-lg" : "bg-slate-50 text-slate-600 hover:bg-slate-100"
+                )}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
 
           <div className="flex-1 overflow-y-auto pr-1">

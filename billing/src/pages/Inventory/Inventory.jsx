@@ -51,8 +51,8 @@ export default function Inventory() {
         <div className="lg:col-span-2 space-y-4">
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="p-6 border-b border-slate-50 font-bold text-slate-900">Movement History</div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
+            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+              <table className="w-full text-left min-w-[600px]">
                 <thead>
                   <tr className="bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-wider">
                     <th className="px-6 py-4">Transaction</th>

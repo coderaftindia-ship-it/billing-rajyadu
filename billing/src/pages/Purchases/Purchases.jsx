@@ -175,8 +175,8 @@ export default function Purchases() {
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-b-2xl">
-          <table className="w-full text-left">
+        <div className="overflow-x-auto rounded-b-2xl scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+          <table className="w-full text-left min-w-[900px]">
             <thead><tr className="bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-wider"><th className="px-6 py-4">Purchase Order</th><th className="px-6 py-4">Supplier</th><th className="px-6 py-4">Total Amount</th><th className="px-6 py-4">Status</th><th className="px-6 py-4">Payment</th><th className="px-6 py-4 text-right">Date</th></tr></thead>
             <tbody className="divide-y divide-slate-50">
               {filteredPurchases.map((purchase) => {

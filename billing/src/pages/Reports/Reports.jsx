@@ -239,8 +239,8 @@ const GSTReport = ({ data }) => {
           <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Filing Summary</h3>
           <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1">Detailed tax breakdown for the period</p>
         </div>
-        <div className="p-10">
-          <table className="w-full text-left border-separate border-spacing-y-4">
+        <div className="p-10 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+          <table className="w-full text-left border-separate border-spacing-y-4 min-w-[600px]">
             <thead>
               <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
                 <th className="px-6 pb-2">Category Description</th>

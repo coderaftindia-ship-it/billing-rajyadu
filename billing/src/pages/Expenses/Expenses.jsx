@@ -162,8 +162,8 @@ export default function Expenses() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
+          <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+            <table className="w-full text-left min-w-[700px]">
               <thead>
                 <tr className="bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-wider">
                   <th className="px-6 py-4">Expense Details</th>

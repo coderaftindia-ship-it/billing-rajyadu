@@ -113,8 +113,8 @@ export default function Users() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+          <table className="w-full text-left min-w-[800px]">
             <thead>
               <tr className="bg-slate-50 text-slate-500 text-[11px] font-black uppercase tracking-widest">
                 <th className="px-8 py-5">User Details</th>

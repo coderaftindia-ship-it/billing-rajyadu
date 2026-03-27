@@ -59,24 +59,36 @@ export default function Products() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Product Management</h1>
-          <p className="text-slate-500 text-sm">Manage items and inventory stock.</p>
+          <h1 className="text-xl md:text-3xl font-black text-slate-900 tracking-tight">Product Management</h1>
+          <p className="text-xs md:text-sm text-slate-500 font-medium">Manage items and inventory stock.</p>
         </div>
-        <button onClick={openAddModal} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 shadow-lg transition-all"><Plus size={18} /> Add New Product</button>
+        <button 
+          onClick={openAddModal}
+          className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-xl md:rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 transition-all active:scale-95"
+        >
+          <Plus size={20} />
+          <span>Add Product</span>
+        </button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-50 flex flex-col md:flex-row gap-4 justify-between">
+      <div className="bg-white rounded-2xl md:rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="p-4 md:p-6 border-b border-slate-100 flex flex-col md:flex-row gap-4 justify-between">
           <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100 w-full md:w-96 group focus-within:bg-white focus-within:border-blue-500 transition-all">
             <Search className="text-slate-400 group-focus-within:text-blue-500" size={18} />
-            <input type="text" placeholder="Search by name, barcode..." className="bg-transparent border-none outline-none w-full text-sm" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+            <input 
+              type="text" 
+              placeholder="Search products..." 
+              className="bg-transparent border-none outline-none w-full text-xs md:text-sm" 
+              value={searchQuery} 
+              onChange={(e) => setSearchQuery(e.target.value)} 
+            />
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+          <table className="w-full text-left min-w-[800px]">
             <thead>
               <tr className="bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-wider">
                 <th className="px-6 py-4">Product Details</th>

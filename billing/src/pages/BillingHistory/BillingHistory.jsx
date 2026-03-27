@@ -90,19 +90,19 @@ export default function BillingHistory() {
         items={selectedSale?.cart || []} 
       />
 
-      <div className="flex justify-between items-end print:hidden">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 print:hidden">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Billing History</h1>
-          <p className="text-slate-500 font-medium">View and manage all your past invoices</p>
+          <h1 className="text-xl md:text-3xl font-black text-slate-900 tracking-tight">Billing History</h1>
+          <p className="text-xs md:text-slate-500 font-medium">View and manage all your past invoices</p>
         </div>
-        <div className="flex gap-3">
-          <div className="flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+        <div className="flex w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+          <div className="flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm w-full sm:w-auto">
             {['All', 'Today'].map(filter => (
               <button
                 key={filter}
                 onClick={() => setDateFilter(filter)}
                 className={cn(
-                  "px-4 py-2 rounded-lg text-sm font-bold transition-all",
+                  "flex-1 sm:flex-none px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-bold transition-all",
                   dateFilter === filter ? "bg-blue-600 text-white shadow-md" : "text-slate-500 hover:bg-slate-50"
                 )}
               >
@@ -113,26 +113,26 @@ export default function BillingHistory() {
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden print:hidden">
-        <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row gap-4 justify-between items-center">
+      <div className="bg-white rounded-2xl md:rounded-3xl border border-slate-200 shadow-sm overflow-hidden print:hidden">
+        <div className="p-4 md:p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row gap-4 justify-between items-center">
           <div className="relative w-full md:w-96">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input 
               type="text" 
-              placeholder="Search by Invoice ID or Customer Name..." 
-              className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium"
+              placeholder="Search invoices..." 
+              className="w-full pl-11 pr-4 py-2 md:py-3 bg-white border border-slate-200 rounded-xl md:rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-sm font-medium"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="flex items-center gap-2 text-sm text-slate-500 font-bold">
-            <Filter size={18} />
+          <div className="flex items-center gap-2 text-xs md:text-sm text-slate-500 font-bold w-full md:w-auto justify-center">
+            <Filter size={16} />
             <span>Showing {filteredSales.length} Transactions</span>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+          <table className="w-full min-w-[800px]">
             <thead>
               <tr className="bg-slate-50/50 border-b border-slate-100">
                 <th className="text-left py-4 px-6 text-xs font-black text-slate-400 uppercase tracking-widest">Invoice</th>
