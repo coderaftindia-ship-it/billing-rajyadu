@@ -46,14 +46,23 @@ export function Sidebar({ isOpen, onClose }) {
 
   const filteredMenuItems = menuItems.filter(item => {
     if (!currentUser) return false;
-    
-    // Admins see everything
-    if (currentUser.role === 'Admin') return true;
-    
-    // Others need explicit permission
-    if (!currentUser.permissions) return false;
-    
-    const userPermissions = currentUser.permissions.split(',').map(p => p.trim());
+    const currentRole = currentUser.role?.toString().trim().toLowerCase();
+    const currentPermissions = currentUser.permissions?.toString().trim();
+
+    // Admins always see everything
+    if (currentRole === 'admin') return true;
+
+    // If permissions includes ALL, allow every menu item
+    if (currentPermissions?.toUpperCase() === 'ALL') return true;
+
+    // Others need explicit permission labels
+    if (!currentPermissions) return false;
+
+    const userPermissions = currentPermissions
+      .split(',')
+      .map(p => p.trim())
+      .filter(Boolean);
+
     return userPermissions.includes(item.label);
   });
 
