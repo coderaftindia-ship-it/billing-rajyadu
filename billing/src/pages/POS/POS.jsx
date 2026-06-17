@@ -236,7 +236,7 @@ export default function POS() {
               </div>
             </div>
 
-            <div className="bg-white rounded-4xl border border-slate-200 shadow-sm p-5 md:p-6 min-h-130 max-h-[calc(100vh-280px)] overflow-auto">
+            <div className="bg-white rounded-4xl border border-slate-200 shadow-sm p-5 md:p-6 min-h-130 max-h-[calc(100vh-280px)] overflow-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-4">
                 <div>
                   <h2 className="text-lg font-bold text-slate-900">Products</h2>
@@ -252,7 +252,7 @@ export default function POS() {
                   ))}
                 </div>
               ) : (
-                <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-340px)]">
+                <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-340px)] scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
                   <table className="w-full min-w-170 text-left">
                     <thead className="bg-slate-50 text-[11px] uppercase tracking-[0.2em] text-slate-400">
                       <tr>
