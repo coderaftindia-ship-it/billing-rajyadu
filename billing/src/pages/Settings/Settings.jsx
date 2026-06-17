@@ -15,7 +15,8 @@ import {
   Smartphone,
   Globe,
   X,
-  Tag
+  Tag,
+  Mail
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useBilling } from '../../context/BillingContext';
@@ -204,6 +205,18 @@ export default function SettingsPage() {
                         type="text" 
                         value={formData.website || ''} 
                         onChange={(e) => handleChange('website', e.target.value)}
+                        className="bg-transparent border-none outline-none w-full text-sm font-medium" 
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-black uppercase text-slate-500 tracking-widest">Email Address</label>
+                    <div className="flex items-center gap-3 bg-slate-50 px-4 py-3 rounded-xl border border-slate-100 focus-within:bg-white focus-within:border-blue-500 transition-all">
+                      <Mail size={18} className="text-slate-400" />
+                      <input 
+                        type="email" 
+                        value={formData.email || ''} 
+                        onChange={(e) => handleChange('email', e.target.value)}
                         className="bg-transparent border-none outline-none w-full text-sm font-medium" 
                       />
                     </div>

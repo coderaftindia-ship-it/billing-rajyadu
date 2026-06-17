@@ -12,11 +12,11 @@ export const PrintableInvoice = ({ sale, customer, items }) => {
   // Company Settings - All fetched dynamically from settings
   const companyName = getSettingValue('companyName', 'SmartBill');
   const companyLogo = getSettingValue('companyLogo', '');
-  const companyAddress = getSettingValue('companyAddress', '123 Business St, City, State');
-  const companyPhone = getSettingValue('companyPhone', '+91 1234567890');
-  const companyEmail = getSettingValue('companyEmail', 'contact@company.com');
-  const companyGST = getSettingValue('companyGST', '27AAAAA0000A1Z5');
-  const companyWebsite = getSettingValue('companyWebsite', '');
+  const companyAddress = getSettingValue('address', '123 Business St, City, State');
+  const companyPhone = getSettingValue('phone', '+91 1234567890');
+  const companyEmail = getSettingValue('email', 'contact@company.com');
+  const companyGST = getSettingValue('gstNumber', '27AAAAA0000A1Z5');
+  const companyWebsite = getSettingValue('website', '');
 
   // Tax Settings - Fetched dynamically from settings
   const cgstRateVal = parseFloat(getSettingValue('cgstRate', '0'));
