@@ -387,40 +387,133 @@ const StockReport = ({ data }) => {
 
 const ProductWiseReport = ({ data }) => {
   const { topSellingProducts } = data;
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [sortOrder, setSortOrder] = useState('desc');
+  const [viewMode, setViewMode] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredProducts = useMemo(() => {
+    if (!Array.isArray(topSellingProducts)) return [];
+    let items = [...topSellingProducts];
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.trim().toLowerCase();
+      items = items.filter(product => product.name?.toLowerCase().includes(query));
+    }
+
+    if (viewMode === 'high') {
+      items = items.sort((a, b) => (b.quantity || 0) - (a.quantity || 0)).slice(0, 5);
+    } else if (viewMode === 'slow') {
+      items = items.sort((a, b) => (a.quantity || 0) - (b.quantity || 0)).slice(0, 5);
+    }
+
+    return items.sort((a, b) => {
+      if (sortOrder === 'asc') return (a.quantity || 0) - (b.quantity || 0);
+      return (b.quantity || 0) - (a.quantity || 0);
+    });
+  }, [topSellingProducts, sortOrder, viewMode, searchQuery]);
+
+  const highVelocityItems = useMemo(() => {
+    if (!Array.isArray(topSellingProducts)) return [];
+    return [...topSellingProducts]
+      .sort((a, b) => (b.quantity || 0) - (a.quantity || 0))
+      .slice(0, 3);
+  }, [topSellingProducts]);
+
+  const slowMovementItems = useMemo(() => {
+    if (!Array.isArray(topSellingProducts)) return [];
+    return [...topSellingProducts]
+      .sort((a, b) => (a.quantity || 0) - (b.quantity || 0))
+      .slice(0, 3);
+  }, [topSellingProducts]);
+
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
       <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm">
-        <div className="flex justify-between items-center mb-10">
-          <div>
+        <div className="flex flex-col gap-4 md:flex-row justify-between items-start md:items-center mb-10">
+          <div className="min-w-0">
             <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Top Performance</h3>
             <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1">High volume inventory analysis</p>
           </div>
-          <button className="flex items-center gap-3 px-6 py-3 bg-slate-50 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-100">
-            <Filter size={16} strokeWidth={2.5} /> Advanced Filter
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={() => setFilterOpen(open => !open)}
+              className="flex items-center justify-center gap-3 px-6 py-3 w-full sm:w-auto bg-slate-50 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-100"
+            >
+              <Filter size={16} strokeWidth={2.5} /> Advanced Filter
+            </button>
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="px-6 py-3 w-full sm:w-auto bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all border border-blue-600"
+            >
+              Reset
+            </button>
+          </div>
         </div>
+
+        {filterOpen && (
+          <div className="mb-8 rounded-[2rem] border border-slate-200 bg-slate-50 p-6 space-y-6">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <label className="flex flex-col gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+                Search product
+                <input
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                  placeholder="Search product name"
+                />
+              </label>
+              <label className="flex flex-col gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+                Sort by quantity
+                <select
+                  value={sortOrder}
+                  onChange={e => setSortOrder(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                >
+                  <option value="desc">Highest First</option>
+                  <option value="asc">Lowest First</option>
+                </select>
+              </label>
+              <label className="flex flex-col gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+                Movement filter
+                <select
+                  value={viewMode}
+                  onChange={e => setViewMode(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                >
+                  <option value="all">All Products</option>
+                  <option value="high">High Velocity</option>
+                  <option value="slow">Slow Movement</option>
+                </select>
+              </label>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-4">
-          {topSellingProducts.map((product, idx) => (
-            <div key={idx} className="flex items-center gap-8 p-6 rounded-[2rem] hover:bg-slate-50 transition-all group relative overflow-hidden border border-transparent hover:border-slate-100">
+          {filteredProducts.map((product, idx) => (
+            <div key={`${product.name || 'product'}-${idx}`} className="flex items-center gap-8 p-6 rounded-[2rem] hover:bg-slate-50 transition-all group relative overflow-hidden border border-transparent hover:border-slate-100">
               <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center font-black text-xl group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-inner">
                 {idx + 1}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-1">
-                  <h4 className="font-black text-slate-900 text-lg tracking-tight truncate">{product.name}</h4>
+                  <h4 className="font-black text-slate-900 text-lg tracking-tight truncate">{product.name || 'Unknown Product'}</h4>
                   <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[8px] font-black uppercase tracking-widest rounded-full border border-emerald-100">Best Seller</span>
                 </div>
                 <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">SKU ID: PRD-{idx + 100}</p>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-2xl font-black text-slate-900 tracking-tighter">{product.quantity}</p>
+                <p className="text-2xl font-black text-slate-900 tracking-tighter">{product.quantity || 0}</p>
                 <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Units Moved</p>
               </div>
               <div className="w-48 shrink-0 hidden md:block">
                 <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden shadow-inner">
                   <div 
                     className="h-full bg-blue-600 rounded-full shadow-lg shadow-blue-100 transition-all duration-1000" 
-                    style={{ width: `${(product.quantity / topSellingProducts[0].quantity) * 100}%` }}
+                    style={{ width: `${((product.quantity || 0) / (topSellingProducts[0]?.quantity || 1)) * 100}%` }}
                   ></div>
                 </div>
               </div>
