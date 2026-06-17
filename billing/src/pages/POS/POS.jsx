@@ -167,15 +167,15 @@ export default function POS() {
   };
 
   return (
-    <div className="lg:h-[calc(100vh-140px)] flex flex-col pb-24 sm:pb-0 bg-slate-50">
+    <div className="min-h-[calc(100vh-140px)] flex flex-col pb-24 sm:pb-0 bg-slate-50">
       <PrintableInvoice
         sale={lastSale}
         customer={lastSale?.customer}
         items={lastSale?.cart || []}
       />
 
-      <div className="flex-1 overflow-auto px-4 md:px-6 py-4 md:py-6">
-        <div className="grid grid-cols-1 xl:grid-cols-[1.75fr_1.15fr] gap-6 h-full">
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 md:py-6">
+        <div className="grid grid-cols-1 xl:grid-cols-[1.75fr_1.15fr] gap-6">
           <section className="space-y-6">
             <div className="bg-white rounded-4xl border border-slate-200 shadow-sm p-5 md:p-6">
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
