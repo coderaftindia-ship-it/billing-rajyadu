@@ -25,12 +25,25 @@ public class ReportService {
     @Autowired
     private ExpenseRepository expenseRepository;
 
+    @Autowired
+    private SettingRepository settingRepository;
+
+    @Autowired
+    private PurchaseRepository purchaseRepository;
+
+    private String getSettingValue(String key, String defaultValue) {
+        return settingRepository.findByKey(key)
+                .map(Setting::getValue)
+                .orElse(defaultValue);
+    }
+
     public ReportSummary getReportSummary() {
         ReportSummary summary = new ReportSummary();
 
         List<Pos> sales = posRepository.findAll();
         List<Product> products = productRepository.findAll();
         List<Expense> expenses = expenseRepository.findAll();
+        List<Purchase> purchases = purchaseRepository.findAll();
 
         // Sales calculations
         double totalSales = sales.stream().mapToDouble(Pos::getTotalAmount).sum();
@@ -99,9 +112,35 @@ public class ReportService {
         summary.setTotalProfit(totalProfit);
         summary.setNetProfit(netProfit);
 
-        // GST Summary (assuming 18% GST on sales and 8% on purchases for now)
-        double gstCollected = totalSales * 0.18;
-        double gstPaid = totalSales * 0.08; // Simplified
+        // GST Summary - Calculate based on settings
+        double cgstRate = Double.parseDouble(getSettingValue("cgstRate", "2.5")) / 100;
+        double sgstRate = Double.parseDouble(getSettingValue("sgstRate", "2.5")) / 100;
+        String autoGstEnabled = getSettingValue("autoGst", "true");
+
+        // GST Collected from Sales (Output Tax)
+        double gstCollected = 0;
+        if ("true".equalsIgnoreCase(autoGstEnabled)) {
+            for (Pos sale : sales) {
+                double saleSubtotal = sale.getItems().stream()
+                        .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                        .sum();
+                gstCollected += saleSubtotal * (cgstRate + sgstRate);
+            }
+        } else {
+            // If auto GST not enabled, assume no GST collected
+            gstCollected = 0;
+        }
+
+        // GST Paid from Purchases (Input Tax)
+        double gstPaid = 0;
+        if ("true".equalsIgnoreCase(autoGstEnabled)) {
+            for (Purchase purchase : purchases) {
+                gstPaid += purchase.getTotalAmount() * (cgstRate + sgstRate);
+            }
+        } else {
+            gstPaid = 0;
+        }
+
         double netGstPayable = gstCollected - gstPaid;
         summary.setGstCollected(gstCollected);
         summary.setGstPaid(gstPaid);

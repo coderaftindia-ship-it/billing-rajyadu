@@ -200,8 +200,18 @@ const ProfitLossReport = ({ data }) => {
   );
 };
 
-const GSTReport = ({ data }) => {
+const GSTReport = ({ data, settings }) => {
   const { gstCollected, gstPaid, netGstPayable } = data;
+  
+  const getSettingValue = (key, fallback) => {
+    const value = settings?.find(s => s.key === key)?.value;
+    return value !== undefined && value !== null && value !== '' ? value : fallback;
+  };
+  
+  const cgstRate = parseFloat(getSettingValue('cgstRate', '2.5'));
+  const sgstRate = parseFloat(getSettingValue('sgstRate', '2.5'));
+  const totalGstRate = cgstRate + sgstRate;
+  
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -237,7 +247,7 @@ const GSTReport = ({ data }) => {
       <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
         <div className="p-10 border-b border-slate-50 bg-slate-50/30">
           <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Filing Summary</h3>
-          <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1">Detailed tax breakdown for the period</p>
+          <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1">Detailed tax breakdown for the period (CGST: {cgstRate}% + SGST: {sgstRate}%)</p>
         </div>
         <div className="p-10 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
           <table className="w-full text-left border-separate border-spacing-y-4 min-w-[600px]">
@@ -257,8 +267,8 @@ const GSTReport = ({ data }) => {
                     <span>Output GST (Sales)</span>
                   </div>
                 </td>
-                <td className="px-6 py-6 text-center border-y border-transparent group-hover:border-blue-100">18%</td>
-                <td className="px-6 py-6 border-y border-transparent group-hover:border-blue-100">₹{(gstCollected / 0.18).toLocaleString()}</td>
+                <td className="px-6 py-6 text-center border-y border-transparent group-hover:border-blue-100">{totalGstRate}%</td>
+                <td className="px-6 py-6 border-y border-transparent group-hover:border-blue-100">₹{(gstCollected / (totalGstRate / 100)).toLocaleString()}</td>
                 <td className="px-6 py-6 text-right rounded-r-2xl border-y border-r border-transparent group-hover:border-blue-100 text-blue-600 font-black">₹{gstCollected.toLocaleString()}</td>
               </tr>
               <tr className="bg-slate-50/50 rounded-2xl group hover:bg-rose-50 transition-colors">
@@ -268,8 +278,8 @@ const GSTReport = ({ data }) => {
                     <span>Input GST (Purchases)</span>
                   </div>
                 </td>
-                <td className="px-6 py-6 text-center border-y border-transparent group-hover:border-rose-100">18%</td>
-                <td className="px-6 py-6 border-y border-transparent group-hover:border-rose-100">₹{(gstPaid / 0.18).toLocaleString()}</td>
+                <td className="px-6 py-6 text-center border-y border-transparent group-hover:border-rose-100">{totalGstRate}%</td>
+                <td className="px-6 py-6 border-y border-transparent group-hover:border-rose-100">₹{(gstPaid / (totalGstRate / 100)).toLocaleString()}</td>
                 <td className="px-6 py-6 text-right rounded-r-2xl border-y border-r border-transparent group-hover:border-rose-100 text-rose-600 font-black">₹{gstPaid.toLocaleString()}</td>
               </tr>
               <tr className="bg-slate-900 rounded-3xl text-white">
@@ -456,7 +466,7 @@ const ProductWiseReport = ({ data }) => {
 };
 
 export default function Reports() {
-  const { reports } = useBilling();
+  const { reports, settings } = useBilling();
   const [selectedReport, setSelectedReport] = useState('sales');
   const [timeRange, setTimeRange] = useState('Last 12 Months');
   const [showTimeDropdown, setShowTimeDropdown] = useState(false);
@@ -491,7 +501,7 @@ export default function Reports() {
     switch (selectedReport) {
       case 'sales': return <SalesReport data={reports} />;
       case 'profit': return <ProfitLossReport data={reports} />;
-      case 'gst': return <GSTReport data={reports} />;
+      case 'gst': return <GSTReport data={reports} settings={settings} />;
       case 'stock': return <StockReport data={reports} />;
       case 'product': return <ProductWiseReport data={reports} />;
       default: return <SalesReport data={reports} />;
