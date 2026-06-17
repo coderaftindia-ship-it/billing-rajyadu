@@ -181,7 +181,7 @@ export default function POS() {
   };
 
   return (
-    <div className="lg:h-[calc(100vh-140px)] flex flex-col">
+    <div className="lg:h-[calc(100vh-140px)] flex flex-col pb-24 sm:pb-0">
       {/* Printable Invoice - Hidden normally, visible during print */}
       <PrintableInvoice 
         sale={lastSale} 
@@ -244,7 +244,7 @@ export default function POS() {
 
           <div className="flex-1 overflow-y-auto pr-1">
             {viewMode === 'grid' ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6 auto-rows-max">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6 auto-rows-max">
                 {filteredProducts.map(product => (
                   <ProductCard key={product.id} product={product} onAddToCart={addToCart} />
                 ))}
@@ -320,7 +320,7 @@ export default function POS() {
         </div>
 
         {/* Right Section - Cart & Checkout */}
-        <div className="lg:col-span-5 flex flex-col gap-6 h-full min-h-[600px] lg:min-h-0">
+        <div className="lg:col-span-5 flex flex-col gap-6 h-full min-h-[auto] lg:min-h-0">
           <div className="flex-1 bg-white rounded-2xl md:rounded-3xl border border-slate-200 shadow-xl overflow-hidden flex flex-col">
             <div className="p-4 md:p-6 border-b border-slate-100">
               <div className="flex items-center justify-between mb-4">
@@ -331,7 +331,7 @@ export default function POS() {
                 <button onClick={() => setCart([])} className="text-rose-500 hover:text-rose-600 text-sm font-medium">Clear</button>
               </div>
               
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <div className="relative flex-1 group">
                   <select 
                     className="w-full appearance-none bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500/20"
@@ -485,6 +485,22 @@ export default function POS() {
               <Printer size={20} /> Generate Invoice & Print
             </button>
           </div>
+        </div>
+      </div>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 sm:hidden bg-white border-t border-slate-200 shadow-t-lg p-4 print:hidden">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs text-slate-500">Total</p>
+            <p className="text-lg font-bold text-slate-900">₹{total.toFixed(2)}</p>
+          </div>
+          <button 
+            onClick={handleCheckout}
+            disabled={cart.length === 0}
+            className="min-w-[140px] bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white py-3 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-200 transition-all active:scale-[0.98]"
+          >
+            <Printer size={18} /> Checkout
+          </button>
         </div>
       </div>
 
