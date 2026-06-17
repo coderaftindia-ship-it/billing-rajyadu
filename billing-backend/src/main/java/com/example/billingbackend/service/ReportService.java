@@ -5,6 +5,7 @@ import com.example.billingbackend.model.*;
 import com.example.billingbackend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ public class ReportService {
                 .orElse(defaultValue);
     }
 
+    @Transactional(readOnly = true)
     public ReportSummary getReportSummary() {
         ReportSummary summary = new ReportSummary();
 
