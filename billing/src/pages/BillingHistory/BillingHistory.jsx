@@ -9,10 +9,19 @@ import { cn } from '../../utils/cn';
 import { PrintableInvoice } from '../../components/PrintableInvoice';
 
 export default function BillingHistory() {
-  const { pos, customers, products } = useBilling();
+  const { pos, customers, products, settings } = useBilling();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSale, setSelectedSale] = useState(null);
   const [dateFilter, setDateFilter] = useState('All');
+
+  const getSettingValue = (key, fallback) => {
+    const value = settings.find(s => s.key === key)?.value;
+    return value !== undefined && value !== null && value !== '' ? value : fallback;
+  };
+
+  const cgstRate = parseFloat(getSettingValue('cgstRate', '0')) || 0;
+  const sgstRate = parseFloat(getSettingValue('sgstRate', '0')) || 0;
+  const autoGstEnabled = getSettingValue('autoGst', 'true') !== 'false';
 
   const getPaymentIcon = (method) => {
     switch (method) {
@@ -270,18 +279,36 @@ export default function BillingHistory() {
               {/* Totals */}
               <div className="flex justify-end">
                 <div className="w-64 space-y-3">
-                  <div className="flex justify-between text-sm text-slate-500 font-bold">
-                    <span>Subtotal</span>
-                    <span>₹{selectedSale.subtotal?.toFixed(2) || (selectedSale.totalAmount - (selectedSale.gst?.total || 0)).toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm text-slate-500 font-bold">
-                    <span>GST Total</span>
-                    <span>₹{selectedSale.gst?.total?.toFixed(2) || '0.00'}</span>
-                  </div>
-                  <div className="pt-3 border-t-2 border-slate-900 flex justify-between items-center">
-                    <span className="text-base font-black text-slate-900 uppercase tracking-widest">Grand Total</span>
-                    <span className="text-2xl font-black text-blue-600">₹{selectedSale.totalAmount.toFixed(2)}</span>
-                  </div>
+                  {(() => {
+                    const subtotal = selectedSale.cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+                    const gstData = selectedSale.cart.reduce((acc, item) => {
+                      const itemTotal = item.price * item.quantity;
+                      const effectiveCgst = autoGstEnabled ? cgstRate : (item.gst / 2 || 0);
+                      const effectiveSgst = autoGstEnabled ? sgstRate : (item.gst / 2 || 0);
+                      acc.cgst += itemTotal * (effectiveCgst / 100);
+                      acc.sgst += itemTotal * (effectiveSgst / 100);
+                      acc.total += (itemTotal * (effectiveCgst / 100)) + (itemTotal * (effectiveSgst / 100));
+                      return acc;
+                    }, { total: 0, cgst: 0, sgst: 0 });
+                    const grandTotal = subtotal + gstData.total;
+                    
+                    return (
+                      <>
+                        <div className="flex justify-between text-sm text-slate-500 font-bold">
+                          <span>Subtotal</span>
+                          <span>₹{subtotal.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm text-slate-500 font-bold">
+                          <span>GST Total</span>
+                          <span>₹{gstData.total.toFixed(2)}</span>
+                        </div>
+                        <div className="pt-3 border-t-2 border-slate-900 flex justify-between items-center">
+                          <span className="text-base font-black text-slate-900 uppercase tracking-widest">Grand Total</span>
+                          <span className="text-2xl font-black text-blue-600">₹{grandTotal.toFixed(2)}</span>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             </div>

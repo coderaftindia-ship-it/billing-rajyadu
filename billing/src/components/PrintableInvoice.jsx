@@ -50,7 +50,8 @@ export const PrintableInvoice = ({ sale, customer, items }) => {
     return acc;
   }, { total: 0, cgst: 0, sgst: 0 });
 
-  const totalAmount = sale.total || sale.totalAmount || (subtotal + gstData.total - (sale.discount || sale.billDiscount || 0));
+  // Always recalculate total to ensure GST is included
+  const totalAmount = Number((subtotal + gstData.total - (sale.discount || sale.billDiscount || 0)).toFixed(2));
 
   return (
     <div className="hidden print:block fixed inset-0 bg-white p-8 z-[9999]">
