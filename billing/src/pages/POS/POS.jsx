@@ -85,9 +85,14 @@ export default function POS() {
 
   const subtotal = cart.reduce((acc, item) => acc + calculateItemTotal(item), 0);
   
-  const cgstRate = parseFloat(settings.find(s => s.key === 'cgstRate')?.value || '0');
-  const sgstRate = parseFloat(settings.find(s => s.key === 'sgstRate')?.value || '0');
-  const autoGstEnabled = settings.find(s => s.key === 'autoGst')?.value !== 'false'; // Default to true if not explicitly false
+  const getSettingValue = (key, fallback) => {
+    const value = settings.find(s => s.key === key)?.value;
+    return value !== undefined && value !== null && value !== '' ? value : fallback;
+  };
+
+  const cgstRate = parseFloat(getSettingValue('cgstRate', '0'));
+  const sgstRate = parseFloat(getSettingValue('sgstRate', '0'));
+  const autoGstEnabled = getSettingValue('autoGst', 'true') !== 'false'; // Default to true if not explicitly false
 
   const gstBreakdown = cart.reduce((acc, item) => {
     const itemTotal = calculateItemTotal(item);
@@ -432,15 +437,13 @@ export default function POS() {
                 <span className="font-semibold text-slate-900">₹{subtotal.toFixed(2)}</span>
               </div>
               
-              <div className="flex flex-col gap-2 px-2 py-2 rounded-2xl bg-white border border-slate-100 shadow-sm">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-semibold text-slate-700">CGST ({cgstRate}%)</span>
-                  <span className="text-base font-bold text-slate-900">₹{gstBreakdown.cgst.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-semibold text-slate-700">SGST ({sgstRate}%)</span>
-                  <span className="text-base font-bold text-slate-900">₹{gstBreakdown.sgst.toFixed(2)}</span>
-                </div>
+              <div className="flex justify-between text-[11px] text-slate-400 px-2">
+                <span>CGST ({cgstRate}%)</span>
+                <span>₹{gstBreakdown.cgst.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-[11px] text-slate-400 px-2">
+                <span>SGST ({sgstRate}%)</span>
+                <span>₹{gstBreakdown.sgst.toFixed(2)}</span>
               </div>
 
               <div className="flex justify-between text-sm text-slate-500">

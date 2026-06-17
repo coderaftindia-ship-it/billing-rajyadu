@@ -363,7 +363,7 @@ export const BillingProvider = ({ children }) => {
   const updateSettings = async (data) => {
     const settingsList = Object.keys(data).map(key => ({
       key: key,
-      value: data[key] ? data[key].toString() : ""
+      value: data[key] != null ? data[key].toString() : ""
     }));
     const res = await settingService.updateBatch(settingsList);
     setSettings(res.data);

@@ -10,9 +10,14 @@ export const PrintableInvoice = ({ sale, customer, items }) => {
   const companyPhone = settings.find(s => s.key === 'companyPhone')?.value || '+91 1234567890';
   const companyEmail = settings.find(s => s.key === 'companyEmail')?.value || 'contact@company.com';
   const companyGST = settings.find(s => s.key === 'companyGST')?.value || '27AAAAA0000A1Z5';
-  const cgstRateVal = parseFloat(settings.find(s => s.key === 'cgstRate')?.value || '0');
-  const sgstRateVal = parseFloat(settings.find(s => s.key === 'sgstRate')?.value || '0');
-  const autoGstEnabled = settings.find(s => s.key === 'autoGst')?.value !== 'false';
+  const getSettingValue = (key, fallback) => {
+    const value = settings.find(s => s.key === key)?.value;
+    return value !== undefined && value !== null && value !== '' ? value : fallback;
+  };
+
+  const cgstRateVal = parseFloat(getSettingValue('cgstRate', '0'));
+  const sgstRateVal = parseFloat(getSettingValue('sgstRate', '0'));
+  const autoGstEnabled = getSettingValue('autoGst', 'true') !== 'false';
 
   if (!sale) return null;
 

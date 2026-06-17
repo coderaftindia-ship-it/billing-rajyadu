@@ -34,8 +34,14 @@ export default function SettingsPage() {
   const [formData, setFormData] = useState({});
   const [backingUp, setBackingUp] = useState(false);
 
+  const defaultSettings = {
+    cgstRate: '2.5',
+    sgstRate: '2.5',
+    autoGst: 'true',
+  };
+
   useEffect(() => {
-    const settingsMap = {};
+    const settingsMap = { ...defaultSettings };
     settings.forEach(s => {
       settingsMap[s.key] = s.value;
     });
@@ -75,7 +81,7 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     try {
-      await updateSettings(formData);
+      await updateSettings({ ...defaultSettings, ...formData });
       alert('Settings saved successfully!');
     } catch (error) {
       console.error("Error saving settings:", error);
