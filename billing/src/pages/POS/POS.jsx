@@ -370,15 +370,15 @@ export default function POS() {
               ) : (
                 cart.map(item => (
                   <div key={item.id} className="space-y-3 pb-4 border-b border-slate-50 last:border-0 group">
-                    <div className="flex items-center gap-3 md:gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 md:gap-4">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-slate-900 truncate">{item.name}</p>
-                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                        <div className="flex flex-wrap items-center gap-2 mt-2">
                           <div className="flex items-center gap-1 text-[11px] text-slate-500">
                             ₹
                             <input 
                               type="number" 
-                              className="w-12 bg-transparent border-b border-slate-200 focus:border-blue-500 outline-none font-medium"
+                              className="w-10 md:w-12 bg-transparent border-b border-slate-200 focus:border-blue-500 outline-none font-medium"
                               value={item.customPrice}
                               onChange={(e) => updateCartItem(item.id, { customPrice: Number(e.target.value) })}
                             />
@@ -388,7 +388,7 @@ export default function POS() {
                             Disc
                             <input 
                               type="number" 
-                              className="w-8 bg-transparent border-b border-slate-200 focus:border-blue-500 outline-none font-medium"
+                              className="w-10 md:w-8 bg-transparent border-b border-slate-200 focus:border-blue-500 outline-none font-medium"
                               value={item.itemDiscount}
                               onChange={(e) => updateCartItem(item.id, { itemDiscount: Number(e.target.value) })}
                             />
@@ -401,18 +401,21 @@ export default function POS() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center bg-slate-100 rounded-lg p-1">
-                        <button onClick={() => updateQuantity(item.id, -1)} className="w-6 h-6 flex items-center justify-center hover:bg-white rounded text-slate-600"><Minus size={12} /></button>
-                        <span className="w-6 md:w-8 text-center text-xs md:text-sm font-bold">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.id, 1)} className="w-6 h-6 flex items-center justify-center hover:bg-white rounded text-slate-600"><Plus size={12} /></button>
+
+                      <div className="flex items-center bg-slate-100 rounded-lg p-1 self-start sm:self-auto">
+                        <button onClick={() => updateQuantity(item.id, -1)} className="w-8 h-8 flex items-center justify-center hover:bg-white rounded text-slate-600"><Minus size={14} /></button>
+                        <span className="w-8 text-center text-xs md:text-sm font-bold">{item.quantity}</span>
+                        <button onClick={() => updateQuantity(item.id, 1)} className="w-8 h-8 flex items-center justify-center hover:bg-white rounded text-slate-600"><Plus size={14} /></button>
                       </div>
-                      <div className="text-right w-20 md:w-24">
+
+                      <div className="text-right w-full sm:w-20 md:w-24 mt-2 sm:mt-0">
                         <p className="text-xs md:text-sm font-black text-slate-900">₹{calculateItemTotal(item).toFixed(2)}</p>
-                        <p className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
                           GST {autoGstEnabled ? (cgstRate + sgstRate) : item.gst}%
                         </p>
                       </div>
-                      <button onClick={() => removeFromCart(item.id)} className="p-1.5 text-slate-300 hover:text-rose-500 transition-colors sm:opacity-0 sm:group-hover:opacity-100"><Trash2 size="16" /></button>
+
+                      <button onClick={() => removeFromCart(item.id)} className="p-1.5 text-slate-300 hover:text-rose-500 transition-colors self-end sm:self-center"><Trash2 size="16" /></button>
                     </div>
                   </div>
                 ))
