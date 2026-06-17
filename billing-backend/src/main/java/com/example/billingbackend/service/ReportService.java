@@ -46,7 +46,12 @@ public class ReportService {
         List<Purchase> purchases = purchaseRepository.findAll();
 
         // Sales calculations
-        double totalSales = sales.stream().mapToDouble(Pos::getTotalAmount).sum();
+        double totalSales = 0;
+        for (Pos pos : sales) {
+            if (pos.getTotalAmount() > 0) {
+                totalSales += pos.getTotalAmount();
+            }
+        }
         int totalOrders = sales.size();
         double averageTicketSize = (totalOrders > 0) ? totalSales / totalOrders : 0;
 
@@ -57,8 +62,10 @@ public class ReportService {
         // Sales over time (monthly for the current year)
         Map<YearMonth, Double> monthlySales = new HashMap<>();
         for (Pos sale : sales) {
-            YearMonth month = YearMonth.from(sale.getTransactionDate());
-            monthlySales.merge(month, sale.getTotalAmount(), Double::sum);
+            if (sale.getTransactionDate() != null && sale.getTotalAmount() > 0) {
+                YearMonth month = YearMonth.from(sale.getTransactionDate());
+                monthlySales.merge(month, sale.getTotalAmount(), Double::sum);
+            }
         }
         List<Map<String, Object>> salesOverTime = new ArrayList<>();
         monthlySales.forEach((month, amount) -> {
@@ -72,7 +79,9 @@ public class ReportService {
         // Category sales (based on current stock value)
         Map<String, Double> categoryStockValue = new HashMap<>();
         for (Product product : products) {
-            categoryStockValue.merge(product.getCategory(), product.getPrice() * product.getStock(), Double::sum);
+            if (product != null && product.getCategory() != null && product.getStock() > 0) {
+                categoryStockValue.merge(product.getCategory(), product.getPrice() * product.getStock(), Double::sum);
+            }
         }
         List<Map<String, Object>> categorySales = new ArrayList<>();
         categoryStockValue.forEach((category, value) -> {
@@ -86,8 +95,10 @@ public class ReportService {
         // Top selling products (by quantity sold in POS)
         Map<Long, Integer> productSalesCount = new HashMap<>();
         for (Pos sale : sales) {
-            for (PosItem item : sale.getItems()) {
-                productSalesCount.merge(item.getProductId(), item.getQuantity(), Integer::sum);
+            if (sale.getItems() != null) {
+                for (PosItem item : sale.getItems()) {
+                    productSalesCount.merge(item.getProductId(), item.getQuantity(), Integer::sum);
+                }
             }
         }
         List<Map<String, Object>> topSellingProducts = productSalesCount.entrySet().stream()
@@ -104,7 +115,12 @@ public class ReportService {
         summary.setTopSellingProducts(topSellingProducts);
 
         // Profit & Loss
-        double totalExpenses = expenses.stream().mapToDouble(Expense::getAmount).sum();
+        double totalExpenses = 0;
+        for (Expense expense : expenses) {
+            if (expense != null && expense.getAmount() > 0) {
+                totalExpenses += expense.getAmount();
+            }
+        }
         // Simplified profit calculation (assuming 20% margin for now)
         double totalProfit = totalSales * 0.20;
         double netProfit = totalProfit - totalExpenses;
@@ -113,18 +129,27 @@ public class ReportService {
         summary.setNetProfit(netProfit);
 
         // GST Summary - Calculate based on settings
-        double cgstRate = Double.parseDouble(getSettingValue("cgstRate", "2.5")) / 100;
-        double sgstRate = Double.parseDouble(getSettingValue("sgstRate", "2.5")) / 100;
+        double cgstRate = 0;
+        double sgstRate = 0;
+        try {
+            cgstRate = Double.parseDouble(getSettingValue("cgstRate", "2.5")) / 100;
+            sgstRate = Double.parseDouble(getSettingValue("sgstRate", "2.5")) / 100;
+        } catch (NumberFormatException e) {
+            cgstRate = 0.025; // Default 2.5%
+            sgstRate = 0.025; // Default 2.5%
+        }
         String autoGstEnabled = getSettingValue("autoGst", "true");
 
         // GST Collected from Sales (Output Tax)
         double gstCollected = 0;
         if ("true".equalsIgnoreCase(autoGstEnabled)) {
             for (Pos sale : sales) {
-                double saleSubtotal = sale.getItems().stream()
-                        .mapToDouble(item -> item.getPrice() * item.getQuantity())
-                        .sum();
-                gstCollected += saleSubtotal * (cgstRate + sgstRate);
+                if (sale.getItems() != null && !sale.getItems().isEmpty()) {
+                    double saleSubtotal = sale.getItems().stream()
+                            .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                            .sum();
+                    gstCollected += saleSubtotal * (cgstRate + sgstRate);
+                }
             }
         } else {
             // If auto GST not enabled, assume no GST collected
@@ -135,7 +160,9 @@ public class ReportService {
         double gstPaid = 0;
         if ("true".equalsIgnoreCase(autoGstEnabled)) {
             for (Purchase purchase : purchases) {
-                gstPaid += purchase.getTotalAmount() * (cgstRate + sgstRate);
+                if (purchase != null && purchase.getTotalAmount() > 0) {
+                    gstPaid += purchase.getTotalAmount() * (cgstRate + sgstRate);
+                }
             }
         } else {
             gstPaid = 0;
@@ -147,8 +174,16 @@ public class ReportService {
         summary.setNetGstPayable(netGstPayable);
 
         // Stock Report
-        long totalStockValue = (long) products.stream().mapToDouble(p -> p.getPrice() * p.getStock()).sum();
-        int lowStockItems = (int) products.stream().filter(p -> p.getStock() < 10).count();
+        long totalStockValue = 0;
+        int lowStockItems = 0;
+        for (Product product : products) {
+            if (product != null && product.getStock() > 0) {
+                totalStockValue += (long) (product.getPrice() * product.getStock());
+            }
+            if (product != null && product.getStock() < 10) {
+                lowStockItems++;
+            }
+        }
         summary.setTotalStockValue(totalStockValue);
         summary.setLowStockItems(lowStockItems);
 
