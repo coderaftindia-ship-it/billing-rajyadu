@@ -120,11 +120,15 @@ export default function POS() {
   );
 
   const handleCheckout = async () => {
-    if (cart.length === 0) return alert('Cart is empty!');
+    if (cart.length === 0) {
+      addToast('Cart is empty!', 'error');
+      return;
+    }
     
     // Validate if customer is selected for any payment
     if (!selectedCustomer) {
-      return alert('Please select a customer before proceeding with the payment!');
+      addToast('Please select a customer before proceeding with the payment!', 'error');
+      return;
     }
 
     const saleInfo = {
@@ -428,13 +432,15 @@ export default function POS() {
                 <span className="font-semibold text-slate-900">₹{subtotal.toFixed(2)}</span>
               </div>
               
-              <div className="flex justify-between text-[11px] text-slate-400 px-2">
-                <span>CGST ({cgstRate}%)</span>
-                <span>₹{gstBreakdown.cgst.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-[11px] text-slate-400 px-2">
-                <span>SGST ({sgstRate}%)</span>
-                <span>₹{gstBreakdown.sgst.toFixed(2)}</span>
+              <div className="flex flex-col gap-2 px-2 py-2 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-semibold text-slate-700">CGST ({cgstRate}%)</span>
+                  <span className="text-base font-bold text-slate-900">₹{gstBreakdown.cgst.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-semibold text-slate-700">SGST ({sgstRate}%)</span>
+                  <span className="text-base font-bold text-slate-900">₹{gstBreakdown.sgst.toFixed(2)}</span>
+                </div>
               </div>
 
               <div className="flex justify-between text-sm text-slate-500">
