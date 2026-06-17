@@ -530,12 +530,18 @@ const ProductWiseReport = ({ data }) => {
             Slow Movement
           </h3>
           <div className="space-y-4">
-            {['Sugar Free Biscuits', 'Organic Tea', 'Premium Nuts'].map((item, i) => (
-              <div key={i} className="flex justify-between items-center p-5 bg-white rounded-2xl border border-rose-100/50 shadow-sm group/item hover:scale-[1.02] transition-transform">
-                <span className="text-sm font-black text-slate-700">{item}</span>
-                <span className="px-3 py-1 bg-rose-100 text-rose-700 text-[10px] font-black uppercase tracking-widest rounded-full">Inactive</span>
+            {slowMovementItems.length > 0 ? slowMovementItems.map((product, i) => (
+              <div key={`${product.name || 'slow'}-${i}`} className="flex justify-between items-center p-5 bg-white rounded-2xl border border-rose-100/50 shadow-sm group/item hover:scale-[1.02] transition-transform">
+                <span className="text-sm font-black text-slate-700 truncate">{product.name || 'Unknown product'}</span>
+                <span className="px-3 py-1 bg-rose-100 text-rose-700 text-[10px] font-black uppercase tracking-widest rounded-full">
+                  {product.quantity ? `${product.quantity} units` : 'No movement'}
+                </span>
               </div>
-            ))}
+            )) : (
+              <div className="p-5 bg-white rounded-2xl border border-rose-100/50 shadow-sm">
+                <p className="text-sm text-slate-500">No slow movement items found.</p>
+              </div>
+            )}
           </div>
         </div>
         <div className="bg-emerald-50 p-10 rounded-[3rem] border border-emerald-100 relative overflow-hidden group">
@@ -545,12 +551,18 @@ const ProductWiseReport = ({ data }) => {
             High Velocity
           </h3>
           <div className="space-y-4">
-            {['Dairy Milk', 'Wheat Flour', 'Cooking Oil'].map((item, i) => (
-              <div key={i} className="flex justify-between items-center p-5 bg-white rounded-2xl border border-emerald-100/50 shadow-sm group/item hover:scale-[1.02] transition-transform">
-                <span className="text-sm font-black text-slate-700">{item}</span>
-                <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-widest rounded-full">+45% Demand</span>
+            {highVelocityItems.length > 0 ? highVelocityItems.map((product, i) => (
+              <div key={`${product.name || 'high'}-${i}`} className="flex justify-between items-center p-5 bg-white rounded-2xl border border-emerald-100/50 shadow-sm group/item hover:scale-[1.02] transition-transform">
+                <span className="text-sm font-black text-slate-700 truncate">{product.name || 'Unknown product'}</span>
+                <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-widest rounded-full">
+                  +{product.quantity || 0} units
+                </span>
               </div>
-            ))}
+            )) : (
+              <div className="p-5 bg-white rounded-2xl border border-emerald-100/50 shadow-sm">
+                <p className="text-sm text-slate-500">No high velocity items found.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
