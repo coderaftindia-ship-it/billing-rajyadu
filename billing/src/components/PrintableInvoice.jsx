@@ -4,17 +4,21 @@ import { useBilling } from '../context/BillingContext';
 export const PrintableInvoice = ({ sale, customer, items }) => {
   const { settings } = useBilling();
   
-  const companyName = settings.find(s => s.key === 'companyName')?.value || 'SmartBill';
-  const companyLogo = settings.find(s => s.key === 'companyLogo')?.value;
-  const companyAddress = settings.find(s => s.key === 'companyAddress')?.value || '123 Business St, City, State';
-  const companyPhone = settings.find(s => s.key === 'companyPhone')?.value || '+91 1234567890';
-  const companyEmail = settings.find(s => s.key === 'companyEmail')?.value || 'contact@company.com';
-  const companyGST = settings.find(s => s.key === 'companyGST')?.value || '27AAAAA0000A1Z5';
   const getSettingValue = (key, fallback) => {
     const value = settings.find(s => s.key === key)?.value;
     return value !== undefined && value !== null && value !== '' ? value : fallback;
   };
 
+  // Company Settings - All fetched dynamically from settings
+  const companyName = getSettingValue('companyName', 'SmartBill');
+  const companyLogo = getSettingValue('companyLogo', '');
+  const companyAddress = getSettingValue('companyAddress', '123 Business St, City, State');
+  const companyPhone = getSettingValue('companyPhone', '+91 1234567890');
+  const companyEmail = getSettingValue('companyEmail', 'contact@company.com');
+  const companyGST = getSettingValue('companyGST', '27AAAAA0000A1Z5');
+  const companyWebsite = getSettingValue('companyWebsite', '');
+
+  // Tax Settings - Fetched dynamically from settings
   const cgstRateVal = parseFloat(getSettingValue('cgstRate', '0'));
   const sgstRateVal = parseFloat(getSettingValue('sgstRate', '0'));
   const autoGstEnabled = getSettingValue('autoGst', 'true') !== 'false';
@@ -63,6 +67,7 @@ export const PrintableInvoice = ({ sale, customer, items }) => {
               {companyLogo && <h1 className="sr-only">{companyName}</h1>}
               <p className="text-sm text-slate-600 font-medium">{companyAddress}</p>
               <p className="text-sm text-slate-600 font-medium">Phone: {companyPhone} | Email: {companyEmail}</p>
+              {companyWebsite && <p className="text-sm text-slate-600 font-medium">Website: {companyWebsite}</p>}
               <p className="text-xs font-bold text-slate-800 mt-1">GSTIN: {companyGST}</p>
             </div>
           </div>
