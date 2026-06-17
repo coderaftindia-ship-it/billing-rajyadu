@@ -466,9 +466,12 @@ export default function POS() {
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-200 flex justify-between items-center">
-                <span className="text-base md:text-lg font-bold text-slate-900">Grand Total</span>
-                <span className="text-xl md:text-2xl font-black text-blue-600">₹{total.toFixed(2)}</span>
+              <div className="pt-3 border-t border-slate-200 flex flex-col gap-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-base md:text-lg font-bold text-slate-900">Grand Total</span>
+                  <span className="text-xl md:text-2xl font-black text-blue-600">₹{total.toFixed(2)}</span>
+                </div>
+                <p className="text-[11px] text-slate-400">Includes CGST + SGST</p>
               </div>
             </div>
           </div>
@@ -503,7 +506,7 @@ export default function POS() {
       <div className="fixed inset-x-0 bottom-0 z-40 sm:hidden bg-white border-t border-slate-200 shadow-t-lg p-4 print:hidden">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs text-slate-500">Total</p>
+            <p className="text-xs text-slate-500">Total (incl. GST)</p>
             <p className="text-lg font-bold text-slate-900">₹{total.toFixed(2)}</p>
           </div>
           <button 
