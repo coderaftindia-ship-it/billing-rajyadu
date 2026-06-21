@@ -95,16 +95,16 @@ public class ReportService {
         summary.setCategorySales(categorySales);
 
         // Top selling products (by quantity sold in POS)
-        Map<Long, Integer> productSalesCount = new HashMap<>();
+        Map<Long, Double> productSalesCount = new HashMap<>();
         for (Pos sale : sales) {
             if (sale.getItems() != null) {
                 for (PosItem item : sale.getItems()) {
-                    productSalesCount.merge(item.getProductId(), item.getQuantity(), Integer::sum);
+                    productSalesCount.merge(item.getProductId(), item.getQuantity(), Double::sum);
                 }
             }
         }
         List<Map<String, Object>> topSellingProducts = productSalesCount.entrySet().stream()
-                .sorted(Map.Entry.<Long, Integer>comparingByValue().reversed())
+                .sorted(Map.Entry.<Long, Double>comparingByValue().reversed())
                 .limit(5)
                 .map(entry -> {
                     Map<String, Object> map = new HashMap<>();
