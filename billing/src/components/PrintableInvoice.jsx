@@ -1,7 +1,7 @@
 import React from 'react';
 import { useBilling } from '../context/BillingContext';
 
-export const PrintableInvoice = ({ sale, customer, items }) => {
+export const PrintableInvoice = React.forwardRef(({ sale, customer, items }, ref) => {
   const { settings } = useBilling();
   
   const getSettingValue = (key, fallback) => {
@@ -180,4 +180,4 @@ export const PrintableInvoice = ({ sale, customer, items }) => {
       </div>
     </div>
   );
-};
+});
