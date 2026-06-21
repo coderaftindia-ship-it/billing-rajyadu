@@ -506,7 +506,7 @@ export const BillingProvider = ({ children }) => {
       completeSale, adjustStock,
       addSupplier, updateSupplier, deleteSupplier,
       updateSupplierStatus, recordPurchasePayment,
-      addPurchase, addExpense,
+      addPurchase, updatePurchase, deletePurchase, addExpense,
       addUser, updateUser, deleteUser,
       updateSettings,
       createNotification,

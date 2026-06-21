@@ -54,7 +54,7 @@ export const PrintableInvoice = ({ sale, customer, items }) => {
   const totalAmount = Number((subtotal + gstData.total - (sale.discount || sale.billDiscount || 0)).toFixed(2));
 
   return (
-    <div className="hidden print:block fixed inset-0 bg-white p-8 z-[9999]">
+    <div ref={ref} className="hidden print:block fixed inset-0 bg-white p-8 z-[9999]">
       <div className="max-w-4xl mx-auto border border-slate-200 p-8 rounded-lg shadow-sm">
         {/* Header */}
         <div className="flex justify-between items-start border-b-2 border-slate-900 pb-6 mb-6">

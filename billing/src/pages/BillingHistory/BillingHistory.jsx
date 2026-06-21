@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Search, Calendar, Filter, Eye, Printer, 
   ChevronRight, ArrowLeft, MoreVertical,
@@ -7,6 +7,8 @@ import {
 import { useBilling } from '../../context/BillingContext';
 import { cn } from '../../utils/cn';
 import { PrintableInvoice } from '../../components/PrintableInvoice';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 export default function BillingHistory() {
   const { pos, customers, products, settings } = useBilling();
@@ -48,6 +50,7 @@ export default function BillingHistory() {
   }).reverse();
 
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const invoiceRef = useRef(null);
 
   const handleViewDetails = (sale) => {
     const customer = customers.find(c => c.id === sale.customerId);
@@ -66,6 +69,64 @@ export default function BillingHistory() {
       cart: saleItems
     });
     setShowDetailsModal(true);
+  };
+
+  const handleShareWhatsApp = async (sale) => {
+    const customer = customers.find(c => c.id === sale.customerId);
+    const saleItems = sale.items.map(item => {
+      const product = products.find(p => p.id === item.productId);
+      return {
+        ...item,
+        name: product?.name || 'Unknown Product',
+        gst: product?.gst || 0
+      };
+    });
+
+    setSelectedSale({
+      ...sale,
+      customer,
+      cart: saleItems
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    if (!invoiceRef.current) {
+      window.alert('Unable to generate invoice preview. Please try again.');
+      return;
+    }
+
+    try {
+      const canvas = await html2canvas(invoiceRef.current, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      const blob = pdf.output('blob');
+      const file = new File([blob], `Invoice-${sale.id}.pdf`, { type: 'application/pdf' });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `Invoice #${sale.id}`,
+          text: `Invoice #${sale.id} for ₹${sale.totalAmount.toFixed(2)}`
+        });
+        return;
+      }
+
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Invoice-${sale.id}.pdf`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+
+      const message = `Invoice #${sale.id} for ₹${sale.totalAmount.toFixed(2)} has been downloaded as PDF. Please attach the PDF from your downloads.`;
+      const waLink = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(waLink, '_blank');
+    } catch (error) {
+      console.error('WhatsApp share failed', error);
+      window.alert('Unable to share invoice on WhatsApp. The file was downloaded instead.');
+    }
   };
 
   const handlePrint = (sale) => {
@@ -94,6 +155,7 @@ export default function BillingHistory() {
     <div className="space-y-6">
       {/* Printable Invoice Component */}
       <PrintableInvoice 
+        ref={invoiceRef}
         sale={selectedSale} 
         customer={selectedSale?.customer} 
         items={selectedSale?.cart || []} 
@@ -321,6 +383,7 @@ export default function BillingHistory() {
                 <Printer size={18} /> Print Invoice
               </button>
               <button 
+                onClick={() => handleShareWhatsApp(selectedSale)}
                 className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-emerald-600 transition-all flex items-center justify-center gap-2"
               >
                 <Share2 size={18} /> WhatsApp
