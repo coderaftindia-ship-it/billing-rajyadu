@@ -19,17 +19,22 @@ export default function Suppliers() {
 
   const openAddModal = () => {
     setEditingId(null);
-    setFormData({ name: '', phone: '', email: '', productsSupplied: '' });
+    setFormData({ name: '', phone: '', email: '', productsSupplied: '', status: 'ACTIVE', totalQuantity: 0, totalPurchasedAmount: 0, totalPaidAmount: 0 });
     setShowModal(true);
   };
 
   const openEditModal = (supplier) => {
     setEditingId(supplier.id);
+    const summ = supplierSummaries.find(ss => ss.supplierId === supplier.id) || {};
     setFormData({ 
       name: supplier.name || '', 
       phone: supplier.phone || '', 
       email: supplier.email || '', 
-      productsSupplied: supplier.productsSupplied || '' 
+      productsSupplied: supplier.productsSupplied || '',
+      status: supplier.status || 'ACTIVE',
+      totalQuantity: summ.totalQuantity || 0,
+      totalPurchasedAmount: summ.totalPurchasedAmount || 0,
+      totalPaidAmount: summ.totalPaidAmount || 0
     });
     setShowModal(true);
   };
@@ -179,6 +184,24 @@ export default function Suppliers() {
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase text-slate-500 tracking-widest">Products Supplied</label>
                 <input type="text" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:bg-white focus:border-blue-500 transition-all" value={formData.productsSupplied} onChange={(e) => setFormData({...formData, productsSupplied: e.target.value})} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-black uppercase text-slate-500 tracking-widest">Qty</label>
+                  <input type="number" disabled value={formData.totalQuantity || 0} className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black uppercase text-slate-500 tracking-widest">Purchased</label>
+                  <input type="text" disabled value={`₹${Number(formData.totalPurchasedAmount || 0).toFixed(2)}`} className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black uppercase text-slate-500 tracking-widest">Paid</label>
+                  <input type="text" disabled value={`₹${Number(formData.totalPaidAmount || 0).toFixed(2)}`} className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black uppercase text-slate-500 tracking-widest">Outstanding</label>
+                  <input type="text" disabled value={`₹${Number((formData.totalPurchasedAmount || 0) - (formData.totalPaidAmount || 0)).toFixed(2)}`} className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium" />
+                </div>
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase text-slate-500 tracking-widest">Status</label>
