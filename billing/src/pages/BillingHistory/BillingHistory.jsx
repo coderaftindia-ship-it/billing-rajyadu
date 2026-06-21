@@ -50,6 +50,7 @@ export default function BillingHistory() {
   }).reverse();
 
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [invoiceExportMode, setInvoiceExportMode] = useState(false);
   const invoiceRef = useRef(null);
 
   const handleViewDetails = (sale) => {
@@ -87,16 +88,28 @@ export default function BillingHistory() {
       customer,
       cart: saleItems
     });
+    setInvoiceExportMode(true);
 
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    await new Promise(resolve => setTimeout(resolve, 250));
 
     if (!invoiceRef.current) {
       window.alert('Unable to generate invoice preview. Please try again.');
+      setInvoiceExportMode(false);
       return;
     }
 
     try {
-      const canvas = await html2canvas(invoiceRef.current, { scale: 2, useCORS: true });
+      const canvas = await html2canvas(invoiceRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        scrollX: -window.scrollX,
+        scrollY: -window.scrollY,
+        windowWidth: invoiceRef.current.scrollWidth,
+        windowHeight: invoiceRef.current.scrollHeight,
+      });
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -126,6 +139,8 @@ export default function BillingHistory() {
     } catch (error) {
       console.error('WhatsApp share failed', error);
       window.alert('Unable to share invoice on WhatsApp. The file was downloaded instead.');
+    } finally {
+      setInvoiceExportMode(false);
     }
   };
 
@@ -156,6 +171,7 @@ export default function BillingHistory() {
       {/* Printable Invoice Component */}
       <PrintableInvoice 
         ref={invoiceRef}
+        exportMode={invoiceExportMode}
         sale={selectedSale} 
         customer={selectedSale?.customer} 
         items={selectedSale?.cart || []} 
@@ -203,7 +219,7 @@ export default function BillingHistory() {
         </div>
 
         <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
-          <table className="w-full min-w-[800px]">
+          <table className="w-full min-w-200">
             <thead>
               <tr className="bg-slate-50/50 border-b border-slate-100">
                 <th className="text-left py-4 px-6 text-xs font-black text-slate-400 uppercase tracking-widest">Invoice</th>

@@ -25,7 +25,7 @@ export default function Expenses() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showProfitModal, setShowProfitModal] = useState(false);
   const [newExpense, setNewExpense] = useState({
-    category: '', amount: 0, paymentMethod: 'Cash', status: 'Paid', date: new Date().toLocaleDateString()
+    category: '', customCategory: '', amount: 0, paymentMethod: 'Cash', status: 'Paid', date: new Date().toLocaleDateString()
   });
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -33,13 +33,15 @@ export default function Expenses() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const category = newExpense.category === 'Custom' ? newExpense.customCategory.trim() : newExpense.category;
     addExpense({
       ...newExpense,
+      category,
       amount: Number(newExpense.amount),
       expenseDate: new Date().toISOString()
     });
     setShowAddModal(false);
-    setNewExpense({ category: '', amount: 0, paymentMethod: 'Cash', status: 'Paid', date: new Date().toLocaleDateString() });
+    setNewExpense({ category: '', customCategory: '', amount: 0, paymentMethod: 'Cash', status: 'Paid', date: new Date().toLocaleDateString() });
   };
 
   const categories = ['All', 'Labour Salary', 'Electricity', 'Transport', 'Packaging', 'Rent', 'Software', 'Other'];
@@ -294,7 +296,7 @@ export default function Expenses() {
                   required
                   className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:bg-white focus:border-blue-500 transition-all appearance-none"
                   value={newExpense.category}
-                  onChange={(e) => setNewExpense({...newExpense, category: e.target.value})}
+                  onChange={(e) => setNewExpense({...newExpense, category: e.target.value, customCategory: ''})}
                 >
                   <option value="">Select Category</option>
                   <option value="Labour Salary">Labour Salary</option>
@@ -302,9 +304,20 @@ export default function Expenses() {
                   <option value="Transport">Transport</option>
                   <option value="Packaging">Packaging</option>
                   <option value="Rent">Rent</option>
-                  <option value="Software">Software Subscription</option>
-                  <option value="Other">Other Miscellaneous</option>
+                  <option value="Software Subscription">Software Subscription</option>
+                  <option value="Other Miscellaneous">Other Miscellaneous</option>
+                  <option value="Custom">Custom Category</option>
                 </select>
+                {newExpense.category === 'Custom' && (
+                  <input
+                    required
+                    type="text"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:bg-white focus:border-blue-500 transition-all"
+                    placeholder="Enter custom category"
+                    value={newExpense.customCategory}
+                    onChange={(e) => setNewExpense({...newExpense, customCategory: e.target.value})}
+                  />
+                )}
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase text-slate-500 tracking-widest">Amount (₹)</label>

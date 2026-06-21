@@ -37,11 +37,12 @@ export default function POS() {
   const addToCart = (product) => {
     const existingItem = cart.find(item => item.id === product.id);
     if (existingItem) {
-      setCart(cart.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item));
+      setCart(cart.map(item => item.id === product.id ? { ...item, quantity: Number((item.quantity + 1).toFixed(2)) } : item));
     } else {
       setCart([...cart, {
         ...product,
         quantity: 1,
+        unit: product.unit || 'pcs',
         itemDiscount: 0,
         itemDiscountType: 'fixed',
         customPrice: product.price
@@ -52,8 +53,8 @@ export default function POS() {
   const updateQuantity = (productId, delta) => {
     setCart(cart.map(item => {
       if (item.id === productId) {
-        const newQty = Math.max(1, item.quantity + delta);
-        return { ...item, quantity: newQty };
+        const newQty = Number((item.quantity + delta).toFixed(2));
+        return { ...item, quantity: Math.max(0.01, Number.isNaN(newQty) ? item.quantity : newQty) };
       }
       return item;
     }));
@@ -354,18 +355,61 @@ export default function POS() {
                     <div className="space-y-4">
                       {cart.map((item) => (
                         <div key={item.id} className="rounded-3xl bg-white border border-slate-200 p-4">
-                          <div className="flex items-center justify-between gap-3">
-                            <div className="min-w-0">
-                              <p className="font-semibold text-slate-900 truncate">{item.name}</p>
-                              <p className="text-xs text-slate-400">Qty {item.quantity} · ₹{item.customPrice.toFixed(2)}</p>
+                          <div className="flex flex-col gap-4">
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="font-semibold text-slate-900 truncate">{item.name}</p>
+                                <p className="text-xs text-slate-400">₹{item.customPrice.toFixed(2)} per unit</p>
+                              </div>
+                              <button
+                                onClick={() => removeFromCart(item.id)}
+                                className="rounded-2xl p-2 text-slate-400 hover:text-rose-500 transition"
+                                aria-label="Remove item"
+                              >
+                                <Trash2 size={16} />
+                              </button>
                             </div>
-                            <button
-                              onClick={() => removeFromCart(item.id)}
-                              className="rounded-2xl p-2 text-slate-400 hover:text-rose-500 transition"
-                              aria-label="Remove item"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-[auto_1fr] sm:items-center">
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => updateQuantity(item.id, -0.25)}
+                                  className="rounded-full border border-slate-200 bg-slate-100 px-3 py-2 text-slate-700 hover:bg-slate-200"
+                                >
+                                  <Minus size={14} />
+                                </button>
+                                <input
+                                  type="number"
+                                  step="0.25"
+                                  min="0.01"
+                                  value={item.quantity}
+                                  onChange={(e) => {
+                                    const value = Number(e.target.value);
+                                    setCart(cart.map(cartItem => cartItem.id === item.id ? { ...cartItem, quantity: Math.max(0.01, Number(value.toFixed(2))) } : cartItem));
+                                  }}
+                                  className="w-24 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-right text-sm font-semibold text-slate-900 outline-none focus:border-blue-500"
+                                />
+                                <button
+                                  onClick={() => updateQuantity(item.id, 0.25)}
+                                  className="rounded-full border border-slate-200 bg-slate-100 px-3 py-2 text-slate-700 hover:bg-slate-200"
+                                >
+                                  <Plus size={14} />
+                                </button>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-slate-500">Unit</span>
+                                <select
+                                  value={item.unit || 'pcs'}
+                                  onChange={(e) => setCart(cart.map(cartItem => cartItem.id === item.id ? { ...cartItem, unit: e.target.value } : cartItem))}
+                                  className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500"
+                                >
+                                  <option value="pcs">pcs</option>
+                                  <option value="kg">kg</option>
+                                  <option value="g">g</option>
+                                  <option value="ltr">ltr</option>
+                                </select>
+                                <span className="ml-auto font-semibold text-slate-900">₹{calculateItemTotal(item).toFixed(2)}</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       ))}

@@ -15,7 +15,7 @@ public class InventoryMovement {
     private Long id;
     private Long productId;
     private String productName;
-    private int quantity;
+    private double quantity;
     private String type; // "Stock In" or "Stock Out"
     private LocalDateTime movementDate;
 }

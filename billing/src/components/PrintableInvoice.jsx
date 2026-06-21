@@ -1,7 +1,7 @@
 import React from 'react';
 import { useBilling } from '../context/BillingContext';
 
-export const PrintableInvoice = React.forwardRef(({ sale, customer, items }, ref) => {
+export const PrintableInvoice = React.forwardRef(({ sale, customer, items, exportMode }, ref) => {
   const { settings } = useBilling();
   
   const getSettingValue = (key, fallback) => {
@@ -54,7 +54,11 @@ export const PrintableInvoice = React.forwardRef(({ sale, customer, items }, ref
   const totalAmount = Number((subtotal + gstData.total - (sale.discount || sale.billDiscount || 0)).toFixed(2));
 
   return (
-    <div ref={ref} className="hidden print:block fixed inset-0 bg-white p-8 z-[9999]">
+    <div
+      ref={ref}
+      className={exportMode ? 'absolute bg-white p-8 z-9999' : 'hidden print:block fixed inset-0 bg-white p-8 z-9999'}
+      style={exportMode ? { position: 'absolute', left: '-9999px', top: 0, width: '1200px', minHeight: '1400px', backgroundColor: '#ffffff' } : undefined}
+    >
       <div className="max-w-4xl mx-auto border border-slate-200 p-8 rounded-lg shadow-sm">
         {/* Header */}
         <div className="flex justify-between items-start border-b-2 border-slate-900 pb-6 mb-6">
@@ -128,7 +132,7 @@ export const PrintableInvoice = React.forwardRef(({ sale, customer, items }, ref
                     <p className="text-[10px] text-slate-400">HSN: 123456</p>
                   </td>
                   <td className="py-4 px-2 text-center text-sm">₹{itemPrice.toFixed(2)}</td>
-                  <td className="py-4 px-2 text-center text-sm">{item.quantity}</td>
+                  <td className="py-4 px-2 text-center text-sm">{item.quantity} {item.unit || ''}</td>
                   <td className="py-4 px-2 text-center text-sm">{itemGstRate}%</td>
                   <td className="py-4 px-2 text-center text-sm">
                     {itemDiscount > 0 ? (item.itemDiscountType === 'percent' ? `${itemDiscount}%` : `₹${itemDiscount}`) : '-'}

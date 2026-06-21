@@ -258,6 +258,7 @@ export const BillingProvider = ({ children }) => {
       items: cart.map(item => ({
         productId: item.id,
         quantity: item.quantity,
+        unit: item.unit || 'pcs',
         price: item.customPrice || item.price,
         itemDiscount: item.itemDiscount,
         itemDiscountType: item.itemDiscountType

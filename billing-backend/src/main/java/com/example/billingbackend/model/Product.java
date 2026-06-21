@@ -19,6 +19,6 @@ public class Product {
     private double gst;
     private double mrp;
     private double price;
-    private int stock;
+    private double stock;
     private String unit;
 }
