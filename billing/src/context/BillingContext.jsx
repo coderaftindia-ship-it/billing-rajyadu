@@ -22,7 +22,6 @@ export const BillingProvider = ({ children }) => {
   const [pos, setPos] = useState([]);
   const [inventory, setInventory] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
-  const [supplierSummaries, setSupplierSummaries] = useState([]);
   const [purchases, setPurchases] = useState([]);
   const [reports, setReports] = useState(null);
   const [expenses, setExpenses] = useState([]);
@@ -76,13 +75,6 @@ export const BillingProvider = ({ children }) => {
       if (invRes.status === 'fulfilled') setInventory(invRes.value.data);
       if (suppRes.status === 'fulfilled') setSuppliers(suppRes.value.data);
       if (purchRes.status === 'fulfilled') setPurchases(purchRes.value.data);
-      try {
-        const summRes = await supplierService.getSummaries();
-        setSupplierSummaries(summRes.data);
-      } catch (err) {
-        // ignore summary errors
-        console.error('Error fetching supplier summaries', err);
-      }
       if (expRes.status === 'fulfilled') setExpenses(expRes.value.data);
       if (userRes.status === 'fulfilled') setUsers(userRes.value.data);
       if (setRes.status === 'fulfilled') setSettings(setRes.value.data);
@@ -114,59 +106,6 @@ export const BillingProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Supplier-specific helpers
-  const toggleSupplierStatus = async (id, newStatus) => {
-    const supplier = suppliers.find(s => s.id === id);
-    if (!supplier) return null;
-    const res = await supplierService.update(id, { ...supplier, status: newStatus });
-    setSuppliers(suppliers.map(s => (s.id === id ? res.data : s)));
-    try {
-      const summRes = await supplierService.getSummaries();
-      setSupplierSummaries(summRes.data);
-    } catch (err) {
-      console.error('Error refreshing supplier summaries', err);
-    }
-    addToast('Supplier status updated', 'success');
-    return res.data;
-  };
-
-  const recordSupplierPayment = async (supplierId, amount) => {
-    let remaining = Number(amount || 0);
-    if (remaining <= 0) return { remaining };
-    // allocate to purchases for this supplier (oldest first)
-    const supplierPurchases = purchases
-      .filter(p => p.supplierId === supplierId)
-      .sort((a, b) => new Date(a.purchaseDate || a.createdAt || 0) - new Date(b.purchaseDate || b.createdAt || 0));
-
-    const updatedPurchases = [...purchases];
-    for (const p of supplierPurchases) {
-      if (remaining <= 0) break;
-      const total = Number(p.totalAmount || p.amount || 0);
-      const paid = Number(p.paidAmount || 0);
-      const outstanding = Math.max(0, total - paid);
-      if (outstanding <= 0) continue;
-      const pay = Math.min(outstanding, remaining);
-      const newPaid = paid + pay;
-      try {
-        const res = await purchaseService.update(p.id, { ...p, paidAmount: newPaid });
-        const idx = updatedPurchases.findIndex(x => x.id === p.id);
-        if (idx !== -1) updatedPurchases[idx] = res.data;
-        remaining -= pay;
-      } catch (err) {
-        console.error('Error recording payment for purchase', err);
-      }
-    }
-    setPurchases(updatedPurchases);
-    try {
-      const summRes = await supplierService.getSummaries();
-      setSupplierSummaries(summRes.data);
-    } catch (err) {
-      console.error('Error refreshing supplier summaries', err);
-    }
-    addToast(`₹${amount} recorded for supplier`, 'success');
-    return { remaining };
   };
 
   const checkLowStock = async (productList, currentNotifications = notifications) => {
@@ -369,11 +308,8 @@ export const BillingProvider = ({ children }) => {
 
   // Supplier Actions
   const addSupplier = async (data) => {
-    const payload = { ...data, status: data.status || 'ACTIVE' };
-    const res = await supplierService.create(payload);
+    const res = await supplierService.create(data);
     setSuppliers([...suppliers, res.data]);
-    // refresh summaries
-    try { const summRes = await supplierService.getSummaries(); setSupplierSummaries(summRes.data); } catch (err) {}
   };
   const updateSupplier = async (id, data) => {
     const res = await supplierService.update(id, data);
@@ -481,7 +417,6 @@ export const BillingProvider = ({ children }) => {
     <BillingContext.Provider value={{
       products, categories, customers, pos, inventory, suppliers, 
       purchases, reports, expenses, users, settings, inventoryHistory,
-      supplierSummaries,
       notifications, markNotificationAsRead, clearNotifications,
       currentUser, login, logout, completeLogin, loading, performBackup,
       addProduct, updateProduct, deleteProduct,
@@ -494,8 +429,6 @@ export const BillingProvider = ({ children }) => {
       updateSettings,
       createNotification,
       addToast,
-      toggleSupplierStatus,
-      recordSupplierPayment,
       toasts
     }}>
       {children}
