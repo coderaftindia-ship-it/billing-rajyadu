@@ -7,7 +7,7 @@ import { cn } from '../../utils/cn';
 import { useBilling } from '../../context/BillingContext';
 
 export default function Suppliers() {
-  const { suppliers, addSupplier, updateSupplier, deleteSupplier } = useBilling();
+  const { suppliers, addSupplier, updateSupplier, deleteSupplier, supplierSummaries, toggleSupplierStatus, recordSupplierPayment } = useBilling();
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -32,6 +32,26 @@ export default function Suppliers() {
       productsSupplied: supplier.productsSupplied || '' 
     });
     setShowModal(true);
+  };
+
+  // Payment modal state
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState('');
+  const [paymentSupplier, setPaymentSupplier] = useState(null);
+
+  const openPaymentModal = (supplier) => {
+    setPaymentSupplier(supplier);
+    setPaymentAmount('');
+    setPaymentModalOpen(true);
+  };
+
+  const handleRecordPayment = async (e) => {
+    e.preventDefault();
+    if (!paymentSupplier) return;
+    const amt = Number(paymentAmount || 0);
+    if (amt <= 0) return;
+    await recordSupplierPayment(paymentSupplier.id, amt);
+    setPaymentModalOpen(false);
   };
 
   const handleSubmit = (e) => {
@@ -75,14 +95,19 @@ export default function Suppliers() {
         </div>
 
         <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
-          <table className="w-full text-left min-w-[700px]">
+          <table className="w-full text-left">
             <thead>
               <tr className="bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-                <th className="px-6 py-4">Supplier</th>
-                <th className="px-6 py-4">Contact</th>
-                <th className="px-6 py-4">Products</th>
-                <th className="px-6 py-4 text-right">Actions</th>
-              </tr>
+                  <th className="px-6 py-4">Supplier</th>
+                  <th className="px-6 py-4">Contact</th>
+                  <th className="px-6 py-4">Products</th>
+                  <th className="px-6 py-4 text-right">Qty</th>
+                  <th className="px-6 py-4 text-right">Purchased</th>
+                  <th className="px-6 py-4 text-right">Paid</th>
+                  <th className="px-6 py-4 text-right">Outstanding</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
+                </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
               {filteredSuppliers.map((supplier) => (
@@ -95,12 +120,35 @@ export default function Suppliers() {
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-600">{supplier.phone}</td>
                   <td className="px-6 py-4"><span className="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-lg">{supplier.productsSupplied}</span></td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button onClick={() => openEditModal(supplier)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><Edit2 size={16} /></button>
-                      <button onClick={() => deleteSupplier(supplier.id)} className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg"><Trash2 size={16} /></button>
-                    </div>
-                  </td>
+                  {(() => {
+                    const summ = supplierSummaries.find(ss => ss.supplierId === supplier.id) || {};
+                    const qty = summ.totalQuantity || 0;
+                    const purchased = summ.totalPurchasedAmount || 0;
+                    const paid = summ.totalPaidAmount || 0;
+                    const outstanding = Math.max(0, purchased - paid);
+                    return (
+                      <>
+                        <td className="px-6 py-4 text-right font-bold">{qty}</td>
+                        <td className="px-6 py-4 text-right">₹{Number(purchased).toFixed(2)}</td>
+                        <td className="px-6 py-4 text-right">₹{Number(paid).toFixed(2)}</td>
+                        <td className="px-6 py-4 text-right font-bold text-rose-600">₹{Number(outstanding).toFixed(2)}</td>
+                        <td className="px-6 py-4">
+                          <select value={supplier.status || 'ACTIVE'} onChange={(e) => toggleSupplierStatus(supplier.id, e.target.value)} className="bg-slate-50 rounded-xl px-3 py-2 text-sm">
+                            <option value="PENDING">Pending</option>
+                            <option value="ACTIVE">Active</option>
+                            <option value="DEACTIVATED">Deactivate</option>
+                          </select>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button onClick={() => openEditModal(supplier)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><Edit2 size={16} /></button>
+                            <button onClick={() => openPaymentModal(supplier)} className="p-2 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-lg">Pay</button>
+                            <button onClick={() => deleteSupplier(supplier.id)} className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg"><Trash2 size={16} /></button>
+                          </div>
+                        </td>
+                      </>
+                    );
+                  })()}
                 </tr>
               ))}
             </tbody>
@@ -133,6 +181,27 @@ export default function Suppliers() {
                 <input type="text" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:bg-white focus:border-blue-500 transition-all" value={formData.productsSupplied} onChange={(e) => setFormData({...formData, productsSupplied: e.target.value})} />
               </div>
               <button type="submit" className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold shadow-lg transition-all active:scale-[0.98]">{editingId ? 'Save Changes' : 'Add Supplier'}</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {paymentModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <h2 className="text-xl font-bold text-slate-900">Record Payment - {paymentSupplier?.name}</h2>
+              <button onClick={() => setPaymentModalOpen(false)} className="p-2 hover:bg-slate-200 rounded-xl transition-colors"><X size={20} className="text-slate-500" /></button>
+            </div>
+            <form onSubmit={handleRecordPayment} className="p-8 space-y-6">
+              <div className="space-y-2">
+                <label className="text-xs font-black uppercase text-slate-500 tracking-widest">Amount</label>
+                <input required type="number" step="0.01" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:bg-white focus:border-blue-500 transition-all" value={paymentAmount} onChange={(e) => setPaymentAmount(e.target.value)} />
+              </div>
+              <div className="flex gap-2">
+                <button type="submit" className="flex-1 w-full py-4 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold">Record Payment</button>
+                <button type="button" onClick={() => setPaymentModalOpen(false)} className="flex-1 w-full py-4 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-2xl font-bold">Cancel</button>
+              </div>
             </form>
           </div>
         </div>
