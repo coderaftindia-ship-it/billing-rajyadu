@@ -369,8 +369,11 @@ export const BillingProvider = ({ children }) => {
 
   // Supplier Actions
   const addSupplier = async (data) => {
-    const res = await supplierService.create(data);
+    const payload = { ...data, status: data.status || 'ACTIVE' };
+    const res = await supplierService.create(payload);
     setSuppliers([...suppliers, res.data]);
+    // refresh summaries
+    try { const summRes = await supplierService.getSummaries(); setSupplierSummaries(summRes.data); } catch (err) {}
   };
   const updateSupplier = async (id, data) => {
     const res = await supplierService.update(id, data);

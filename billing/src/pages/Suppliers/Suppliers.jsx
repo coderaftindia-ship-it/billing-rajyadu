@@ -180,6 +180,14 @@ export default function Suppliers() {
                 <label className="text-xs font-black uppercase text-slate-500 tracking-widest">Products Supplied</label>
                 <input type="text" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:bg-white focus:border-blue-500 transition-all" value={formData.productsSupplied} onChange={(e) => setFormData({...formData, productsSupplied: e.target.value})} />
               </div>
+              <div className="space-y-2">
+                <label className="text-xs font-black uppercase text-slate-500 tracking-widest">Status</label>
+                <select required value={formData.status || 'ACTIVE'} onChange={(e) => setFormData({...formData, status: e.target.value})} className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:bg-white focus:border-blue-500 transition-all">
+                  <option value="PENDING">Pending</option>
+                  <option value="ACTIVE">Active</option>
+                  <option value="DEACTIVATED">Deactivate</option>
+                </select>
+              </div>
               <button type="submit" className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold shadow-lg transition-all active:scale-[0.98]">{editingId ? 'Save Changes' : 'Add Supplier'}</button>
             </form>
           </div>
