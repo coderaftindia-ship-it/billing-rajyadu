@@ -377,17 +377,21 @@ export default function POS() {
                                 >
                                   <Minus size={14} />
                                 </button>
-                                <input
-                                  type="number"
-                                  step="0.25"
-                                  min="0.01"
-                                  value={item.quantity}
-                                  onChange={(e) => {
-                                    const value = Number(e.target.value);
-                                    setCart(cart.map(cartItem => cartItem.id === item.id ? { ...cartItem, quantity: Math.max(0.01, Number(value.toFixed(2))) } : cartItem));
-                                  }}
-                                  className="w-24 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-right text-sm font-semibold text-slate-900 outline-none focus:border-blue-500"
-                                />
+                                <div className="flex flex-col items-center">
+                                  <input
+                                    type="number"
+                                    step="0.25"
+                                    min="0.01"
+                                    value={item.quantity}
+                                    onChange={(e) => {
+                                      const value = Number(e.target.value);
+                                      setCart(cart.map(cartItem => cartItem.id === item.id ? { ...cartItem, quantity: Math.max(0.01, Number(value.toFixed(2))) } : cartItem));
+                                    }}
+                                    className="w-20 rounded-2xl border border-slate-200 bg-slate-50 px-2 py-2 text-center text-sm font-semibold text-slate-900 outline-none focus:border-blue-500"
+                                    placeholder="0"
+                                  />
+                                  <span className="text-[10px] text-slate-400 mt-1">{item.unit || 'pcs'}</span>
+                                </div>
                                 <button
                                   onClick={() => updateQuantity(item.id, 0.25)}
                                   className="rounded-full border border-slate-200 bg-slate-100 px-3 py-2 text-slate-700 hover:bg-slate-200"

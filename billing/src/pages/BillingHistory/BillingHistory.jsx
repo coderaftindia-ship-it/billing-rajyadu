@@ -346,7 +346,7 @@ export default function BillingHistory() {
                           <p className="text-[10px] text-slate-400">GST {item.gst}%</p>
                         </td>
                         <td className="py-3 px-4 text-center text-sm font-medium">₹{item.price.toFixed(2)}</td>
-                        <td className="py-3 px-4 text-center text-sm font-bold text-slate-600">{item.quantity}</td>
+                        <td className="py-3 px-4 text-center text-sm font-bold text-slate-600">{item.quantity} <span className="text-xs text-slate-500">{item.unit || 'pcs'}</span></td>
                         <td className="py-3 px-4 text-right text-sm font-black text-slate-900">₹{(item.price * item.quantity).toFixed(2)}</td>
                       </tr>
                     ))}
