@@ -15,6 +15,11 @@ public class SupplierController {
     @Autowired
     private SupplierService supplierService;
 
+    @GetMapping("/summary")
+    public java.util.List<com.example.billingbackend.model.SupplierSummary> getAllSupplierSummaries() {
+        return supplierService.getAllSupplierSummaries();
+    }
+
     @GetMapping
     public List<Supplier> getAllSuppliers() {
         return supplierService.getAllSuppliers();

@@ -17,6 +17,8 @@ public class Purchase {
     private Long supplierId;
     private LocalDateTime purchaseDate;
     private double totalAmount;
+    private double paidAmount; // amount paid so far against this purchase
+    private int totalQuantity; // total units purchased in this order (optional)
     private String status; // e.g., PENDING, RECEIVED
     private String paymentStatus; // e.g., PAID, UNPAID, PARTIAL
 }

@@ -18,4 +18,5 @@ public class Supplier {
     private String productsSupplied;
     private String contactPerson;
     private String address;
+    private String status; // ACTIVE, PENDING, DEACTIVATED
 }

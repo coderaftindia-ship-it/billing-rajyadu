@@ -33,6 +33,8 @@ public class PurchaseService {
             purchase.setSupplierId(purchaseDetails.getSupplierId());
             purchase.setPurchaseDate(purchaseDetails.getPurchaseDate());
             purchase.setTotalAmount(purchaseDetails.getTotalAmount());
+            purchase.setPaidAmount(purchaseDetails.getPaidAmount());
+            purchase.setTotalQuantity(purchaseDetails.getTotalQuantity());
             purchase.setStatus(purchaseDetails.getStatus());
             purchase.setPaymentStatus(purchaseDetails.getPaymentStatus());
             return purchaseRepository.save(purchase);
