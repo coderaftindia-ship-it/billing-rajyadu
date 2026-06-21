@@ -12,7 +12,7 @@ export default function Products() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
-    name: '', category: '', barcode: '', hsn: '', gst: 0, mrp: 0, price: 0, stock: 0, unit: 'piece'
+    name: '', category: '', barcode: '', hsn: '', gst: 0, mrp: 0, price: 0, stock: 0, unit: 'pcs'
   });
 
   const filteredProducts = products.filter(p => 
@@ -21,7 +21,7 @@ export default function Products() {
 
   const openAddModal = () => {
     setEditingId(null);
-    setFormData({ name: '', category: '', barcode: '', hsn: '', gst: 0, mrp: 0, price: 0, stock: 0, unit: 'piece' });
+    setFormData({ name: '', category: '', barcode: '', hsn: '', gst: 0, mrp: 0, price: 0, stock: 0, unit: 'pcs' });
     setShowModal(true);
   };
 
@@ -109,7 +109,7 @@ export default function Products() {
                   </td>
                   <td className="px-6 py-4"><span className="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-semibold rounded-lg">{product.category}</span></td>
                   <td className="px-6 py-4"><p className="text-sm font-bold text-slate-900">₹{product.price}</p></td>
-                  <td className="px-6 py-4"><p className="text-sm font-bold text-slate-900">{product.stock} {product.unit}s</p></td>
+                  <td className="px-6 py-4"><p className="text-sm font-bold text-slate-900">{product.stock} <span className="text-xs text-slate-500">{product.unit}</span></p></td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
                       <button onClick={() => openEditModal(product)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Edit"><Edit2 size={16} /></button>
@@ -172,6 +172,15 @@ export default function Products() {
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase text-slate-500 tracking-widest">Stock</label>
                 <input required type="number" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:bg-white focus:border-blue-500 transition-all" value={formData.stock} onChange={(e) => setFormData({...formData, stock: Number(e.target.value)})} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-black uppercase text-slate-500 tracking-widest">Unit Type</label>
+                <select required className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:bg-white focus:border-blue-500 transition-all appearance-none" value={formData.unit} onChange={(e) => setFormData({...formData, unit: e.target.value})}>
+                  <option value="pcs">Pieces (pcs)</option>
+                  <option value="kg">Kilogram (kg)</option>
+                  <option value="g">Gram (g)</option>
+                  <option value="ltr">Litre (ltr)</option>
+                </select>
               </div>
               <div className="md:col-span-2 pt-4 flex gap-4">
                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-bold transition-all">Cancel</button>
