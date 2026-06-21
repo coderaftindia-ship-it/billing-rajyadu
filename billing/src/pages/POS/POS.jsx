@@ -370,48 +370,59 @@ export default function POS() {
                               </button>
                             </div>
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-[auto_1fr] sm:items-center">
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => updateQuantity(item.id, -0.25)}
-                                  className="rounded-full border border-slate-200 bg-slate-100 px-3 py-2 text-slate-700 hover:bg-slate-200"
-                                >
-                                  <Minus size={14} />
-                                </button>
-                                <div className="flex flex-col items-center">
-                                  <input
-                                    type="number"
-                                    step="0.25"
-                                    min="0.01"
-                                    value={item.quantity}
-                                    onChange={(e) => {
-                                      const value = Number(e.target.value);
-                                      setCart(cart.map(cartItem => cartItem.id === item.id ? { ...cartItem, quantity: Math.max(0.01, Number(value.toFixed(2))) } : cartItem));
-                                    }}
-                                    className="w-20 rounded-2xl border border-slate-200 bg-slate-50 px-2 py-2 text-center text-sm font-semibold text-slate-900 outline-none focus:border-blue-500"
-                                    placeholder="0"
-                                  />
-                                  <span className="text-[10px] text-slate-400 mt-1">{item.unit || 'pcs'}</span>
+                              {/* Quantity Box - Separate */}
+                              <div className="sm:col-span-2 border-2 border-blue-200 bg-blue-50 rounded-3xl p-4">
+                                <label className="text-xs font-bold uppercase text-blue-600 tracking-widest block mb-3">Quantity</label>
+                                <div className="flex items-end gap-3">
+                                  <button
+                                    onClick={() => updateQuantity(item.id, -0.25)}
+                                    className="rounded-full border-2 border-blue-300 bg-white px-4 py-3 text-blue-600 hover:bg-blue-100 transition font-bold"
+                                  >
+                                    <Minus size={16} />
+                                  </button>
+                                  <div className="flex-1 flex flex-col items-center">
+                                    <input
+                                      type="number"
+                                      step="0.25"
+                                      min="0.01"
+                                      value={item.quantity}
+                                      onChange={(e) => {
+                                        const value = Number(e.target.value);
+                                        setCart(cart.map(cartItem => cartItem.id === item.id ? { ...cartItem, quantity: Math.max(0.01, Number(value.toFixed(2))) } : cartItem));
+                                      }}
+                                      className="w-full rounded-2xl border-2 border-blue-300 bg-white px-4 py-3 text-center text-2xl font-black text-blue-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-300"
+                                      placeholder="0"
+                                    />
+                                    <span className="text-sm font-bold text-blue-600 mt-2 uppercase">{item.unit || 'pcs'}</span>
+                                  </div>
+                                  <button
+                                    onClick={() => updateQuantity(item.id, 0.25)}
+                                    className="rounded-full border-2 border-blue-300 bg-white px-4 py-3 text-blue-600 hover:bg-blue-100 transition font-bold"
+                                  >
+                                    <Plus size={16} />
+                                  </button>
                                 </div>
-                                <button
-                                  onClick={() => updateQuantity(item.id, 0.25)}
-                                  className="rounded-full border border-slate-200 bg-slate-100 px-3 py-2 text-slate-700 hover:bg-slate-200"
-                                >
-                                  <Plus size={14} />
-                                </button>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-slate-500">Unit</span>
-                                <select
-                                  value={item.unit || 'pcs'}
-                                  onChange={(e) => setCart(cart.map(cartItem => cartItem.id === item.id ? { ...cartItem, unit: e.target.value } : cartItem))}
-                                  className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500"
-                                >
-                                  <option value="pcs">pcs</option>
-                                  <option value="kg">kg</option>
-                                  <option value="g">g</option>
-                                  <option value="ltr">ltr</option>
-                                </select>
-                                <span className="ml-auto font-semibold text-slate-900">₹{calculateItemTotal(item).toFixed(2)}</span>
+                              
+                              {/* Unit & Price Row */}
+                              <div className="sm:col-span-2 flex items-center gap-3 bg-slate-50 rounded-2xl p-3">
+                                <div className="flex-1">
+                                  <label className="text-xs text-slate-500 block mb-1">Unit Type</label>
+                                  <select
+                                    value={item.unit || 'pcs'}
+                                    onChange={(e) => setCart(cart.map(cartItem => cartItem.id === item.id ? { ...cartItem, unit: e.target.value } : cartItem))}
+                                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-blue-500"
+                                  >
+                                    <option value="pcs">Pieces (pcs)</option>
+                                    <option value="kg">Kilogram (kg)</option>
+                                    <option value="g">Gram (g)</option>
+                                    <option value="ltr">Litre (ltr)</option>
+                                  </select>
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-xs text-slate-500 block mb-1">Total</p>
+                                  <p className="text-2xl font-black text-blue-600">₹{calculateItemTotal(item).toFixed(2)}</p>
+                                </div>
                               </div>
                             </div>
                           </div>
