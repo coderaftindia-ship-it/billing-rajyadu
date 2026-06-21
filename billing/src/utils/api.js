@@ -58,6 +58,7 @@ export const supplierService = {
   create: (data) => api.post('/suppliers', data),
   update: (id, data) => api.put(`/suppliers/${id}`, data),
   delete: (id) => api.delete(`/suppliers/${id}`),
+  getSummary: () => api.get('/suppliers/summary'),
 };
 
 export const purchaseService = {

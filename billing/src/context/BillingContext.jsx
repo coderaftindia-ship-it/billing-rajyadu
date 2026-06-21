@@ -28,6 +28,7 @@ export const BillingProvider = ({ children }) => {
   const [users, setUsers] = useState([]);
   const [settings, setSettings] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [supplierSummaries, setSupplierSummaries] = useState([]);
   const [inventoryHistory, setInventoryHistory] = useState([]);
   const [currentUser, setCurrentUser] = useState(() => {
     const savedUser = localStorage.getItem('currentUser');
@@ -75,6 +76,9 @@ export const BillingProvider = ({ children }) => {
       if (invRes.status === 'fulfilled') setInventory(invRes.value.data);
       if (suppRes.status === 'fulfilled') setSuppliers(suppRes.value.data);
       if (purchRes.status === 'fulfilled') setPurchases(purchRes.value.data);
+      if (purchRes.status === 'fulfilled') {
+        // if purchases fetched, try to fetch supplier summaries after suppliers are loaded
+      }
       if (expRes.status === 'fulfilled') setExpenses(expRes.value.data);
       if (userRes.status === 'fulfilled') setUsers(userRes.value.data);
       if (setRes.status === 'fulfilled') setSettings(setRes.value.data);
@@ -85,6 +89,14 @@ export const BillingProvider = ({ children }) => {
         setReports(reportRes.data);
       } catch (error) {
         console.error("Error fetching reports:", error);
+      }
+
+      // Fetch supplier summaries (aggregated data)
+      try {
+        const summRes = await supplierService.getSummary();
+        setSupplierSummaries(summRes.data || []);
+      } catch (err) {
+        console.error('Error fetching supplier summaries', err);
       }
 
       const movementsRes = await inventoryService.getMovements();
@@ -105,6 +117,39 @@ export const BillingProvider = ({ children }) => {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const updateSupplierStatus = async (supplierId, status) => {
+    try {
+      const supplier = suppliers.find(s => s.id === supplierId) || {};
+      const res = await supplierService.update(supplierId, { ...supplier, status });
+      setSuppliers(prev => prev.map(s => (s.id === supplierId ? res.data : s)));
+      // refresh summaries
+      const summRes = await supplierService.getSummary();
+      setSupplierSummaries(summRes.data || []);
+      addToast('Supplier status updated', 'success');
+    } catch (err) {
+      console.error(err);
+      addToast('Failed to update supplier status', 'error');
+    }
+  };
+
+  const recordPurchasePayment = async (purchaseId, amount) => {
+    try {
+      const existing = purchases.find(p => p.id === purchaseId);
+      if (!existing) throw new Error('Purchase not found');
+      const newPaid = (Number(existing.paidAmount) || 0) + Number(amount || 0);
+      const updated = { ...existing, paidAmount: newPaid };
+      const res = await purchaseService.update(purchaseId, updated);
+      setPurchases(prev => prev.map(p => (p.id === purchaseId ? res.data : p)));
+      // refresh supplier summaries
+      const summRes = await supplierService.getSummary();
+      setSupplierSummaries(summRes.data || []);
+      addToast('Payment recorded', 'success');
+    } catch (err) {
+      console.error(err);
+      addToast('Failed to record payment', 'error');
     }
   };
 
@@ -335,6 +380,41 @@ export const BillingProvider = ({ children }) => {
     createNotification('Purchase Order', `New purchase order for ${data.productName} created.`, 'PURCHASE');
   };
 
+  const updatePurchase = async (id, data) => {
+    try {
+      const res = await purchaseService.update(id, data);
+      setPurchases(prev => prev.map(p => (p.id === id ? res.data : p)));
+      // If status changed to RECEIVED, update stock
+      if (data.status === 'RECEIVED') {
+        const product = products.find(prod => prod.name === data.productName);
+        if (product && data.totalQuantity) {
+          await adjustStock(product.id, Number(data.totalQuantity), 'Purchase');
+        }
+      }
+      // refresh supplier summaries if needed
+      try { const summRes = await supplierService.getSummary(); setSupplierSummaries(summRes.data || []); } catch(e){/*ignore*/}
+      addToast('Purchase updated', 'success');
+      return res.data;
+    } catch (err) {
+      console.error('Failed to update purchase', err);
+      addToast('Failed to update purchase', 'error');
+      throw err;
+    }
+  };
+
+  const deletePurchase = async (id) => {
+    try {
+      await purchaseService.delete(id);
+      setPurchases(prev => prev.filter(p => p.id !== id));
+      try { const summRes = await supplierService.getSummary(); setSupplierSummaries(summRes.data || []); } catch(e){/*ignore*/}
+      addToast('Purchase deleted', 'success');
+    } catch (err) {
+      console.error('Failed to delete purchase', err);
+      addToast('Failed to delete purchase', 'error');
+      throw err;
+    }
+  };
+
   // Expense Actions
   const addExpense = async (data) => {
     const res = await expenseService.create(data);
@@ -417,6 +497,7 @@ export const BillingProvider = ({ children }) => {
     <BillingContext.Provider value={{
       products, categories, customers, pos, inventory, suppliers, 
       purchases, reports, expenses, users, settings, inventoryHistory,
+      supplierSummaries,
       notifications, markNotificationAsRead, clearNotifications,
       currentUser, login, logout, completeLogin, loading, performBackup,
       addProduct, updateProduct, deleteProduct,
@@ -424,6 +505,7 @@ export const BillingProvider = ({ children }) => {
       addCustomer, updateCustomer, deleteCustomer,
       completeSale, adjustStock,
       addSupplier, updateSupplier, deleteSupplier,
+      updateSupplierStatus, recordPurchasePayment,
       addPurchase, addExpense,
       addUser, updateUser, deleteUser,
       updateSettings,
