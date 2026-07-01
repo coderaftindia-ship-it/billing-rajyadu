@@ -26,7 +26,15 @@ export default function Customers() {
 
   const openEditModal = (customer) => {
     setEditingId(customer.id);
-    setFormData({ ...customer });
+    setFormData({
+      name: customer.name || '',
+      phone: customer.phone || '',
+      address: customer.address || '',
+      gst: customer.gst || '',
+      credit: customer.credit || 0,
+      totalSpent: customer.totalSpent || 0,
+      lastVisit: customer.lastVisit || ''
+    });
     setShowModal(true);
   };
 
@@ -102,7 +110,15 @@ export default function Customers() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 font-bold group-hover:bg-blue-600 group-hover:text-white transition-all">{customer.name[0]}</div>
-                      <div><p className="text-sm font-bold text-slate-900">{customer.name}</p><p className="text-[10px] text-slate-400">Last visit: {customer.lastVisit}</p></div>
+                      <div>
+                        <p className="text-sm font-bold text-slate-900">{customer.name}</p>
+                        <p className="text-[10px] text-slate-400">Last visit: {customer.lastVisit}</p>
+                        {customer.gst && (
+                          <p className="text-[10px] text-blue-600 font-semibold mt-0.5 uppercase">
+                            GST: {customer.gst}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-600">{customer.phone}</td>
@@ -154,6 +170,16 @@ export default function Customers() {
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase text-slate-500 tracking-widest">Phone Number</label>
                 <input required type="tel" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:bg-white focus:border-blue-500 transition-all" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-black uppercase text-slate-500 tracking-widest">GST Number</label>
+                <input 
+                  type="text" 
+                  placeholder="e.g. 08ATLPY4392H1ZW" 
+                  className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:bg-white focus:border-blue-500 transition-all uppercase" 
+                  value={formData.gst || ''} 
+                  onChange={(e) => setFormData({...formData, gst: e.target.value.toUpperCase()})} 
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase text-slate-500 tracking-widest">Address</label>

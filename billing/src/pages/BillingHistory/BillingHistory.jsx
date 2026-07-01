@@ -116,12 +116,12 @@ export default function BillingHistory() {
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
       const blob = pdf.output('blob');
-      const file = new File([blob], `Invoice-${sale.id}.pdf`, { type: 'application/pdf' });
+      const file = new File([blob], `Rajyadu billing.pdf`, { type: 'application/pdf' });
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
-          title: `Invoice #${sale.id}`,
+          title: `Rajyadu billing`,
           text: `Invoice #${sale.id} for ₹${sale.totalAmount.toFixed(2)}`
         });
         return;
@@ -129,7 +129,7 @@ export default function BillingHistory() {
 
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `Invoice-${sale.id}.pdf`;
+      link.download = `Rajyadu billing.pdf`;
       link.click();
       URL.revokeObjectURL(link.href);
 
@@ -161,8 +161,13 @@ export default function BillingHistory() {
       cart: saleItems
     });
 
+    const originalTitle = document.title;
+    document.title = 'Rajyadu billing';
     setTimeout(() => {
       window.print();
+      setTimeout(() => {
+        document.title = originalTitle;
+      }, 100);
     }, 100);
   };
 

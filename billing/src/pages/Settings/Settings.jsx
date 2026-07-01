@@ -180,7 +180,7 @@ export default function SettingsPage() {
                       <input 
                         type="text" 
                         value={formData.gstNumber || ''} 
-                        onChange={(e) => handleChange('gstNumber', e.target.value)}
+                        onChange={(e) => handleChange('gstNumber', e.target.value.toUpperCase())}
                         className="bg-transparent border-none outline-none w-full text-sm font-medium uppercase" 
                       />
                     </div>

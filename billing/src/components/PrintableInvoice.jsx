@@ -73,7 +73,7 @@ export const PrintableInvoice = React.forwardRef(({ sale, customer, items, expor
               <p className="text-sm text-slate-600 font-medium">{companyAddress}</p>
               <p className="text-sm text-slate-600 font-medium">Phone: {companyPhone} | Email: {companyEmail}</p>
               {companyWebsite && <p className="text-sm text-slate-600 font-medium">Website: {companyWebsite}</p>}
-              <p className="text-xs font-bold text-slate-800 mt-1">GSTIN: {companyGST}</p>
+              <p className="text-xs font-bold text-slate-800 mt-1">GSTIN: {companyGST?.toUpperCase()}</p>
             </div>
           </div>
           <div className="text-right">
@@ -94,6 +94,7 @@ export const PrintableInvoice = React.forwardRef(({ sale, customer, items, expor
             {customer?.phone && <p className="text-sm text-slate-600">Phone: {customer.phone}</p>}
             {customer?.address && <p className="text-sm text-slate-600">Address: {customer.address}</p>}
             {customer?.email && <p className="text-sm text-slate-600">Email: {customer.email}</p>}
+            {customer?.gst && <p className="text-xs font-bold text-slate-800 mt-1">GSTIN: {customer.gst.toUpperCase()}</p>}
           </div>
           <div className="bg-slate-50 p-4 rounded-xl text-right">
             <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Payment Details:</h3>

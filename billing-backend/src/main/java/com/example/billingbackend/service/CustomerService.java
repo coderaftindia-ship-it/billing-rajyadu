@@ -18,6 +18,9 @@ public class CustomerService {
     }
 
     public Customer createCustomer(Customer customer) {
+        if (customer.getGst() != null) {
+            customer.setGst(customer.getGst().toUpperCase().trim());
+        }
         return customerRepository.save(customer);
     }
 
@@ -27,7 +30,11 @@ public class CustomerService {
             customer.setName(customerDetails.getName());
             customer.setPhone(customerDetails.getPhone());
             customer.setAddress(customerDetails.getAddress());
-            customer.setGst(customerDetails.getGst());
+            if (customerDetails.getGst() != null) {
+                customer.setGst(customerDetails.getGst().toUpperCase().trim());
+            } else {
+                customer.setGst(null);
+            }
             return customerRepository.save(customer);
         }
         return null;
